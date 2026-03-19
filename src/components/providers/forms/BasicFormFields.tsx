@@ -122,7 +122,7 @@ export function BasicFormFields({
       {beforeNameSlot}
 
       {/* 基础信息 - 网格布局 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <FormField
           control={form.control}
           name="name"

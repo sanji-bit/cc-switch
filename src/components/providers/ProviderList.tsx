@@ -315,7 +315,7 @@ export function ProviderList({
         items={filteredProviders.map((provider) => provider.id)}
         strategy={verticalListSortingStrategy}
       >
-        <div className="space-y-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-4">
           {filteredProviders.map((provider) => {
             const isOmo = provider.category === "omo";
             const isOmoSlim = provider.category === "omo-slim";
@@ -376,7 +376,7 @@ export function ProviderList({
   );
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className="space-y-4">
       <AnimatePresence>
         {isSearchOpen && (
           <motion.div
@@ -542,7 +542,7 @@ function SortableProviderCard({
   };
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className="min-w-0">
       <ProviderCard
         provider={provider}
         isCurrent={isCurrent}

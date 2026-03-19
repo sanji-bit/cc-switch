@@ -31,12 +31,12 @@ export function SessionMessageItem({
     <div
       ref={setRef}
       className={cn(
-        "rounded-lg border px-3 py-2.5 relative group transition-all min-w-0",
+        "relative min-w-0 rounded-lg px-3 py-2.5 transition-all group",
         message.role.toLowerCase() === "user"
-          ? "bg-primary/5 border-primary/20 ml-8"
+          ? "bg-primary/5"
           : message.role.toLowerCase() === "assistant"
-            ? "bg-blue-500/5 border-blue-500/20 mr-8"
-            : "bg-muted/40 border-border/60",
+            ? "bg-muted/60"
+            : "bg-muted/40",
         isActive && "ring-2 ring-primary ring-offset-2",
       )}
     >
@@ -62,7 +62,7 @@ export function SessionMessageItem({
           {getRoleLabel(message.role, t)}
         </span>
         {message.ts && (
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
             {formatTimestamp(message.ts)}
           </span>
         )}

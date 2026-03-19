@@ -1,7 +1,9 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { ProviderIcon } from "@/components/ProviderIcon";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
 import type { SettingsFormState } from "@/hooks/useSettings";
 import type { VisibleApps } from "@/types";
 import type { AppId } from "@/lib/api";
@@ -56,14 +58,14 @@ export function AppVisibilitySettings({
   return (
     <section className="space-y-2">
       <header className="space-y-1">
-        <h3 className="text-sm font-medium">
+        <h3 className="text-[16px] font-medium">
           {t("settings.appVisibility.title")}
         </h3>
         <p className="text-xs text-muted-foreground">
           {t("settings.appVisibility.description")}
         </p>
       </header>
-      <div className="inline-flex gap-1 rounded-md border border-border-default bg-background p-1">
+      <SegmentedControl className="flex max-w-full flex-wrap">
         {APP_CONFIG.map((app) => {
           const isVisible = visibleApps[app.id];
           // Disable button if this is the last visible app
@@ -82,7 +84,7 @@ export function AppVisibilitySettings({
             </AppButton>
           );
         })}
-      </div>
+      </SegmentedControl>
     </section>
   );
 }
@@ -105,21 +107,15 @@ function AppButton({
   children,
 }: AppButtonProps) {
   return (
-    <Button
+    <SegmentedControlItem
       type="button"
       onClick={onClick}
       disabled={disabled}
-      size="sm"
-      variant={active ? "default" : "ghost"}
-      className={cn(
-        "w-[90px] gap-1.5",
-        active
-          ? "shadow-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted",
-      )}
+      active={active}
+      className="w-[90px] gap-1.5"
     >
       <ProviderIcon icon={icon} name={name} size={14} />
       {children}
-    </Button>
+    </SegmentedControlItem>
   );
 }

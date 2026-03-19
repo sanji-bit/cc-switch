@@ -23,12 +23,6 @@ import type { SessionMeta } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -77,9 +71,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const [search, setSearch] = useState("");
-  const [providerFilter, setProviderFilter] = useState<ProviderFilter>(
-    appId as ProviderFilter,
-  );
+  const providerFilter = appId as ProviderFilter;
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   // 使用 FlexSearch 全文搜索
@@ -208,228 +200,144 @@ export function SessionManagerPage({ appId }: { appId: string }) {
 
   return (
     <TooltipProvider>
-      <div className="mx-auto px-4 sm:px-6 flex flex-col flex-1 min-h-0">
+      <div className="mx-auto w-full p-6 flex flex-col flex-1 min-h-0">
         <div className="flex-1 overflow-hidden flex flex-col gap-4">
           {/* 主内容区域 - 左右分栏 */}
-          <div className="flex-1 overflow-hidden grid gap-4 md:grid-cols-[320px_1fr]">
-            {/* 左侧会话列表 */}
-            <Card className="flex flex-col overflow-hidden">
-              <CardHeader className="py-2 px-3 border-b">
-                {isSearchOpen ? (
-                  <div className="relative flex-1">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                    <Input
-                      ref={searchInputRef}
-                      value={search}
-                      onChange={(event) => setSearch(event.target.value)}
-                      placeholder={t("sessionManager.searchPlaceholder")}
-                      className="h-8 pl-8 pr-8 text-sm"
-                      autoFocus
-                      onKeyDown={(e) => {
-                        if (e.key === "Escape") {
+          <Card className="flex-1 overflow-hidden">
+            <div className="grid h-full min-h-0 md:grid-cols-[320px_minmax(0,1fr)]">
+              {/* 左侧会话列表 */}
+              <div className="flex min-h-0 flex-col border-r border-border/60">
+                <CardHeader className="py-2 px-3">
+                  {isSearchOpen ? (
+                    <div className="relative flex-1">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                      <Input
+                        ref={searchInputRef}
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder={t("sessionManager.searchPlaceholder")}
+                        className="h-8 pl-8 pr-8 text-sm"
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") {
+                            setIsSearchOpen(false);
+                            setSearch("");
+                          }
+                        }}
+                        onBlur={() => {
+                          if (search.trim() === "") {
+                            setIsSearchOpen(false);
+                          }
+                        }}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 -translate-y-1/2 size-6"
+                        onClick={() => {
                           setIsSearchOpen(false);
                           setSearch("");
-                        }
-                      }}
-                      onBlur={() => {
-                        if (search.trim() === "") {
-                          setIsSearchOpen(false);
-                        }
-                      }}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 size-6"
-                      onClick={() => {
-                        setIsSearchOpen(false);
-                        setSearch("");
-                      }}
-                    >
-                      <X className="size-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-sm font-medium">
-                        {t("sessionManager.sessionList")}
-                      </CardTitle>
-                      <Badge variant="secondary" className="text-xs">
-                        {filteredSessions.length}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7"
-                            onClick={() => {
-                              setIsSearchOpen(true);
-                              setTimeout(
-                                () => searchInputRef.current?.focus(),
-                                0,
-                              );
-                            }}
-                          >
-                            <Search className="size-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {t("sessionManager.searchSessions")}
-                        </TooltipContent>
-                      </Tooltip>
-
-                      <Select
-                        value={providerFilter}
-                        onValueChange={(value) =>
-                          setProviderFilter(value as ProviderFilter)
-                        }
+                        }}
                       >
+                        <X className="size-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <CardTitle className="text-sm font-medium">
+                          {t("sessionManager.sessionList")}
+                        </CardTitle>
+                        <Badge
+                          variant="secondary"
+                          className="border-0 bg-transparent px-0 py-0 text-xs shadow-none"
+                        >
+                          {filteredSessions.length}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <SelectTrigger className="size-7 p-0 justify-center border-0 bg-transparent hover:bg-muted">
-                              <ProviderIcon
-                                icon={
-                                  providerFilter === "all"
-                                    ? "apps"
-                                    : getProviderIconName(providerFilter)
-                                }
-                                name={providerFilter}
-                                size={14}
-                              />
-                            </SelectTrigger>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => {
+                                setIsSearchOpen(true);
+                                setTimeout(
+                                  () => searchInputRef.current?.focus(),
+                                  0,
+                                );
+                              }}
+                            >
+                              <Search className="size-3.5" />
+                            </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {providerFilter === "all"
-                              ? t("sessionManager.providerFilterAll")
-                              : providerFilter}
+                            {t("sessionManager.searchSessions")}
                           </TooltipContent>
                         </Tooltip>
-                        <SelectContent>
-                          <SelectItem value="all">
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon icon="apps" name="all" size={14} />
-                              <span>
-                                {t("sessionManager.providerFilterAll")}
-                              </span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="codex">
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon
-                                icon="openai"
-                                name="codex"
-                                size={14}
-                              />
-                              <span>Codex</span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="claude">
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon
-                                icon="claude"
-                                name="claude"
-                                size={14}
-                              />
-                              <span>Claude Code</span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="opencode">
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon
-                                icon="opencode"
-                                name="opencode"
-                                size={14}
-                              />
-                              <span>OpenCode</span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="openclaw">
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon
-                                icon="openclaw"
-                                name="openclaw"
-                                size={14}
-                              />
-                              <span>OpenClaw</span>
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="gemini">
-                            <div className="flex items-center gap-2">
-                              <ProviderIcon
-                                icon="gemini"
-                                name="gemini"
-                                size={14}
-                              />
-                              <span>Gemini CLI</span>
-                            </div>
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
 
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-7"
-                            onClick={() => void refetch()}
-                          >
-                            <RefreshCw className="size-3.5" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>{t("common.refresh")}</TooltipContent>
-                      </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="size-7"
+                              onClick={() => void refetch()}
+                            >
+                              <RefreshCw className="size-3.5" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>{t("common.refresh")}</TooltipContent>
+                        </Tooltip>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </CardHeader>
-              <CardContent className="flex-1 overflow-hidden p-0">
-                <ScrollArea className="h-full">
-                  <div className="p-2">
-                    {isLoading ? (
-                      <div className="flex items-center justify-center py-12">
-                        <RefreshCw className="size-5 animate-spin text-muted-foreground" />
-                      </div>
-                    ) : filteredSessions.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <MessageSquare className="size-8 text-muted-foreground/50 mb-2" />
-                        <p className="text-sm text-muted-foreground">
-                          {t("sessionManager.noSessions")}
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="space-y-1">
-                        {filteredSessions.map((session) => {
-                          const isSelected =
-                            selectedKey !== null &&
-                            getSessionKey(session) === selectedKey;
+                  )}
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden p-0">
+                  <ScrollArea className="h-full">
+                    <div className="p-2">
+                      {isLoading ? (
+                        <div className="flex items-center justify-center py-12">
+                          <RefreshCw className="size-5 animate-spin text-muted-foreground" />
+                        </div>
+                      ) : filteredSessions.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                          <MessageSquare className="size-8 text-muted-foreground/50 mb-2" />
+                          <p className="text-sm text-muted-foreground">
+                            {t("sessionManager.noSessions")}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {filteredSessions.map((session) => {
+                            const isSelected =
+                              selectedKey !== null &&
+                              getSessionKey(session) === selectedKey;
 
-                          return (
-                            <SessionItem
-                              key={getSessionKey(session)}
-                              session={session}
-                              isSelected={isSelected}
-                              onSelect={setSelectedKey}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </ScrollArea>
-              </CardContent>
-            </Card>
+                            return (
+                              <SessionItem
+                                key={getSessionKey(session)}
+                                session={session}
+                                isSelected={isSelected}
+                                onSelect={setSelectedKey}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </div>
 
-            {/* 右侧会话详情 */}
-            <Card
-              className="flex flex-col overflow-hidden min-h-0"
-              ref={detailRef}
-            >
-              {!selectedSession ? (
+              {/* 右侧会话详情 */}
+              <div
+                className="flex min-h-0 flex-col overflow-hidden"
+                ref={detailRef}
+              >
+                {!selectedSession ? (
                 <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
                   <MessageSquare className="size-12 mb-3 opacity-30" />
                   <p className="text-sm">{t("sessionManager.selectSession")}</p>
@@ -437,7 +345,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
               ) : (
                 <>
                   {/* 详情头部 */}
-                  <CardHeader className="py-3 px-4 border-b shrink-0">
+                  <CardHeader className="py-3 px-4 shrink-0">
                     <div className="flex items-start justify-between gap-4">
                       {/* 左侧：会话信息 */}
                       <div className="min-w-0 flex-1">
@@ -542,9 +450,9 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
-                              size="sm"
-                              variant="destructive"
-                              className="gap-1.5"
+                              size="icon"
+                              variant="ghost"
+                              className="size-7 shrink-0 text-muted-foreground"
                               onClick={() => setDeleteTarget(selectedSession)}
                               disabled={
                                 !selectedSession.sourcePath ||
@@ -552,21 +460,16 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                               }
                             >
                               <Trash2 className="size-3.5" />
-                              <span className="hidden sm:inline">
-                                {deleteSessionMutation.isPending
-                                  ? t("sessionManager.deleting", {
-                                      defaultValue: "删除中...",
-                                    })
-                                  : t("sessionManager.delete", {
-                                      defaultValue: "删除会话",
-                                    })}
-                              </span>
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {t("sessionManager.deleteTooltip", {
-                              defaultValue: "永久删除此本地会话记录",
-                            })}
+                            {deleteSessionMutation.isPending
+                              ? t("sessionManager.deleting", {
+                                  defaultValue: "删除中...",
+                                })
+                              : t("sessionManager.deleteTooltip", {
+                                  defaultValue: "永久删除此本地会话记录",
+                                })}
                           </TooltipContent>
                         </Tooltip>
                       </div>
@@ -605,19 +508,22 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                   </CardHeader>
 
                   {/* 消息列表区域 */}
-                  <CardContent className="flex-1 overflow-hidden p-0">
+                  <CardContent className="flex-1 overflow-hidden border-t border-border/60 p-0">
                     <div className="flex h-full min-w-0">
                       {/* 消息列表 */}
                       <ScrollArea className="flex-1 min-w-0">
                         <div className="p-4 min-w-0">
-                          <div className="flex items-center gap-2 mb-3">
+                          <div className="mb-3 flex items-center gap-2">
                             <MessageSquare className="size-4 text-muted-foreground" />
                             <span className="text-sm font-medium">
                               {t("sessionManager.conversationHistory", {
                                 defaultValue: "对话记录",
                               })}
                             </span>
-                            <Badge variant="secondary" className="text-xs">
+                            <Badge
+                              variant="secondary"
+                              className="border-0 bg-transparent px-0 py-0 text-xs shadow-none"
+                            >
                               {messages.length}
                             </Badge>
                           </div>
@@ -677,8 +583,9 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                   </CardContent>
                 </>
               )}
-            </Card>
-          </div>
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
       <ConfirmDialog

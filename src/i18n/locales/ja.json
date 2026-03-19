@@ -76,6 +76,16 @@
     "enterEditMode": "編集モードに入る",
     "exitEditMode": "編集モードを終了"
   },
+  "navigation": {
+    "agents": "エージェント",
+    "globalConfig": "グローバル設定",
+    "skills": "スキルプラグイン",
+    "mcp": "MCP サービス",
+    "preferences": "環境設定",
+    "providers": "プロバイダー",
+    "claudeCode": "Claude Code",
+    "geminiCli": "Gemini CLI"
+  },
   "provider": {
     "tabProvider": "プロバイダー",
     "tabUniversal": "統一プロバイダー",

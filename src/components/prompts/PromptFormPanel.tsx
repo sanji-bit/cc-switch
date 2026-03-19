@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import MarkdownEditor from "@/components/MarkdownEditor";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
 import type { Prompt, AppId } from "@/lib/api";
 
 interface PromptFormPanelProps {
@@ -93,62 +101,72 @@ const PromptFormPanel: React.FC<PromptFormPanelProps> = ({
     : t("prompts.addTitle", { appName });
 
   return (
-    <FullScreenPanel
-      isOpen={true}
-      title={title}
-      onClose={onClose}
-      footer={
-        <Button
-          type="button"
-          onClick={handleSave}
-          disabled={!name.trim() || saving}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {saving ? t("common.saving") : t("common.save")}
-        </Button>
-      }
-    >
-      <div className="glass rounded-xl p-6 border border-white/10 space-y-6">
-        <div>
-          <Label htmlFor="name" className="text-foreground">
-            {t("prompts.name")}
-          </Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder={t("prompts.namePlaceholder")}
-            className="mt-2"
-          />
-        </div>
+    <Dialog open onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="pt-1 text-lg font-semibold">
+              {title}
+            </DialogTitle>
+            <DialogCloseButton onClick={onClose} />
+          </div>
+        </DialogHeader>
 
-        <div>
-          <Label htmlFor="description" className="text-foreground">
-            {t("prompts.description")}
-          </Label>
-          <Input
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder={t("prompts.descriptionPlaceholder")}
-            className="mt-2"
-          />
-        </div>
+        <DialogBody>
+          <div className="glass space-y-6 rounded-xl border border-white/10 p-6">
+            <div>
+              <Label htmlFor="name" className="text-foreground">
+                {t("prompts.name")}
+              </Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={t("prompts.namePlaceholder")}
+                className="mt-2"
+              />
+            </div>
 
-        <div>
-          <Label htmlFor="content" className="block mb-2 text-foreground">
-            {t("prompts.content")}
-          </Label>
-          <MarkdownEditor
-            value={content}
-            onChange={setContent}
-            placeholder={t("prompts.contentPlaceholder", { filename })}
-            darkMode={isDarkMode}
-            minHeight="167px"
-          />
-        </div>
-      </div>
-    </FullScreenPanel>
+            <div>
+              <Label htmlFor="description" className="text-foreground">
+                {t("prompts.description")}
+              </Label>
+              <Input
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder={t("prompts.descriptionPlaceholder")}
+                className="mt-2"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="content" className="mb-2 block text-foreground">
+                {t("prompts.content")}
+              </Label>
+              <MarkdownEditor
+                value={content}
+                onChange={setContent}
+                placeholder={t("prompts.contentPlaceholder", { filename })}
+                darkMode={isDarkMode}
+                minHeight="167px"
+              />
+            </div>
+          </div>
+        </DialogBody>
+
+        <DialogFooter>
+          <Button
+            type="button"
+            onClick={handleSave}
+            disabled={!name.trim() || saving}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {saving ? t("common.saving") : t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

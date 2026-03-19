@@ -2,8 +2,16 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Save, Plus } from "lucide-react";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUpdateModelPricing } from "@/lib/query/usage";
@@ -83,142 +91,150 @@ export function PricingEditModal({
   };
 
   return (
-    <FullScreenPanel
-      isOpen={open}
-      title={
-        isNew
-          ? t("usage.addPricing", "新增定价")
-          : `${t("usage.editPricing", "编辑定价")} - ${model.modelId}`
-      }
-      onClose={onClose}
-      footer={
-        <Button
-          type="submit"
-          form="pricing-form"
-          disabled={updatePricing.isPending}
-        >
-          {isNew ? (
-            <Plus className="h-4 w-4 mr-2" />
-          ) : (
-            <Save className="h-4 w-4 mr-2" />
-          )}
-          {updatePricing.isPending
-            ? t("common.saving", "保存中...")
-            : isNew
-              ? t("common.add", "新增")
-              : t("common.save", "保存")}
-        </Button>
-      }
-    >
-      <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
-        {isNew && (
-          <div className="space-y-2">
-            <Label htmlFor="modelId">{t("usage.modelId", "模型 ID")}</Label>
-            <Input
-              id="modelId"
-              value={formData.modelId}
-              onChange={(e) =>
-                setFormData({ ...formData, modelId: e.target.value })
-              }
-              placeholder={t("usage.modelIdPlaceholder", {
-                defaultValue: "例如: claude-3-5-sonnet-20241022",
-              })}
-              required
-            />
+    <Dialog open={open} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent variant="form" zIndex="alert" className="max-w-[720px]">
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="pt-1 text-lg font-semibold">
+              {isNew
+                ? t("usage.addPricing", "新增定价")
+                : `${t("usage.editPricing", "编辑定价")} - ${model.modelId}`}
+            </DialogTitle>
+            <DialogCloseButton onClick={onClose} />
           </div>
-        )}
+        </DialogHeader>
 
-        <div className="space-y-2">
-          <Label htmlFor="displayName">
-            {t("usage.displayName", "显示名称")}
-          </Label>
-          <Input
-            id="displayName"
-            value={formData.displayName}
-            onChange={(e) =>
-              setFormData({ ...formData, displayName: e.target.value })
-            }
-            placeholder={t("usage.displayNamePlaceholder", {
-              defaultValue: "例如: Claude 3.5 Sonnet",
-            })}
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="inputCost">
-            {t("usage.inputCostPerMillion", "输入成本 (每百万 tokens, USD)")}
-          </Label>
-          <Input
-            id="inputCost"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.inputCost}
-            onChange={(e) =>
-              setFormData({ ...formData, inputCost: e.target.value })
-            }
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="outputCost">
-            {t("usage.outputCostPerMillion", "输出成本 (每百万 tokens, USD)")}
-          </Label>
-          <Input
-            id="outputCost"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.outputCost}
-            onChange={(e) =>
-              setFormData({ ...formData, outputCost: e.target.value })
-            }
-            required
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="cacheReadCost">
-            {t(
-              "usage.cacheReadCostPerMillion",
-              "缓存读取成本 (每百万 tokens, USD)",
+        <DialogBody>
+          <form id="pricing-form" onSubmit={handleSubmit} className="space-y-6">
+            {isNew && (
+              <div className="space-y-2">
+                <Label htmlFor="modelId">{t("usage.modelId", "模型 ID")}</Label>
+                <Input
+                  id="modelId"
+                  value={formData.modelId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, modelId: e.target.value })
+                  }
+                  placeholder={t("usage.modelIdPlaceholder", {
+                    defaultValue: "例如: claude-3-5-sonnet-20241022",
+                  })}
+                  required
+                />
+              </div>
             )}
-          </Label>
-          <Input
-            id="cacheReadCost"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.cacheReadCost}
-            onChange={(e) =>
-              setFormData({ ...formData, cacheReadCost: e.target.value })
-            }
-            required
-          />
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="cacheCreationCost">
-            {t(
-              "usage.cacheCreationCostPerMillion",
-              "缓存写入成本 (每百万 tokens, USD)",
+            <div className="space-y-2">
+              <Label htmlFor="displayName">
+                {t("usage.displayName", "显示名称")}
+              </Label>
+              <Input
+                id="displayName"
+                value={formData.displayName}
+                onChange={(e) =>
+                  setFormData({ ...formData, displayName: e.target.value })
+                }
+                placeholder={t("usage.displayNamePlaceholder", {
+                  defaultValue: "例如: Claude 3.5 Sonnet",
+                })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="inputCost">
+                {t("usage.inputCostPerMillion", "输入成本 (每百万 tokens, USD)")}
+              </Label>
+              <Input
+                id="inputCost"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.inputCost}
+                onChange={(e) =>
+                  setFormData({ ...formData, inputCost: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="outputCost">
+                {t("usage.outputCostPerMillion", "输出成本 (每百万 tokens, USD)")}
+              </Label>
+              <Input
+                id="outputCost"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.outputCost}
+                onChange={(e) =>
+                  setFormData({ ...formData, outputCost: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cacheReadCost">
+                {t(
+                  "usage.cacheReadCostPerMillion",
+                  "缓存读取成本 (每百万 tokens, USD)",
+                )}
+              </Label>
+              <Input
+                id="cacheReadCost"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.cacheReadCost}
+                onChange={(e) =>
+                  setFormData({ ...formData, cacheReadCost: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cacheCreationCost">
+                {t(
+                  "usage.cacheCreationCostPerMillion",
+                  "缓存写入成本 (每百万 tokens, USD)",
+                )}
+              </Label>
+              <Input
+                id="cacheCreationCost"
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.cacheCreationCost}
+                onChange={(e) =>
+                  setFormData({ ...formData, cacheCreationCost: e.target.value })
+                }
+                required
+              />
+            </div>
+          </form>
+        </DialogBody>
+
+        <DialogFooter>
+          <Button
+            type="submit"
+            form="pricing-form"
+            disabled={updatePricing.isPending}
+          >
+            {isNew ? (
+              <Plus className="mr-2 h-4 w-4" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
             )}
-          </Label>
-          <Input
-            id="cacheCreationCost"
-            type="number"
-            step="0.01"
-            min="0"
-            value={formData.cacheCreationCost}
-            onChange={(e) =>
-              setFormData({ ...formData, cacheCreationCost: e.target.value })
-            }
-            required
-          />
-        </div>
-      </form>
-    </FullScreenPanel>
+            {updatePricing.isPending
+              ? t("common.saving", "保存中...")
+              : isNew
+                ? t("common.add", "新增")
+                : t("common.save", "保存")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

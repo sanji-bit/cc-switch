@@ -4,7 +4,15 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Provider, CustomEndpoint, UniversalProvider } from "@/types";
 import type { AppId } from "@/lib/api";
 import { universalProvidersApi } from "@/lib/api";
@@ -275,52 +283,67 @@ export function AddProviderDialog({
     );
 
   return (
-    <FullScreenPanel
-      isOpen={open}
-      title={t("provider.addNewProvider")}
-      onClose={() => onOpenChange(false)}
-      footer={footer}
-    >
-      {showUniversalTab ? (
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => setActiveTab(v as "app-specific" | "universal")}
-        >
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="app-specific">
-              {t(`apps.${appId}`)} {t("provider.tabProvider")}
-            </TabsTrigger>
-            <TabsTrigger value="universal">
-              {t("provider.tabUniversal")}
-            </TabsTrigger>
-          </TabsList>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
+          <DialogHeader className="gap-4 pb-2">
+            <div className="flex items-start justify-between gap-4">
+              <DialogTitle className="pt-1 text-lg font-semibold">
+                {t("provider.addNewProvider")}
+              </DialogTitle>
+              <DialogCloseButton onClick={() => onOpenChange(false)} />
+            </div>
+          </DialogHeader>
 
-          <TabsContent value="app-specific" className="mt-0">
-            <ProviderForm
-              appId={appId}
-              submitLabel={t("common.add")}
-              onSubmit={handleSubmit}
-              onCancel={() => onOpenChange(false)}
-              onSubmittingChange={setIsFormSubmitting}
-              showButtons={false}
-            />
-          </TabsContent>
+          <DialogBody>
+            {showUniversalTab ? (
+              <Tabs
+                value={activeTab}
+                onValueChange={(v) =>
+                  setActiveTab(v as "app-specific" | "universal")
+                }
+              >
+                <TabsList className="mb-6 grid w-full grid-cols-2">
+                  <TabsTrigger value="app-specific">
+                    {t(`apps.${appId}`)} {t("provider.tabProvider")}
+                  </TabsTrigger>
+                  <TabsTrigger value="universal">
+                    {t("provider.tabUniversal")}
+                  </TabsTrigger>
+                </TabsList>
 
-          <TabsContent value="universal" className="mt-0">
-            <UniversalProviderPanel />
-          </TabsContent>
-        </Tabs>
-      ) : (
-        // OpenCode/OpenClaw: directly show form without tabs
-        <ProviderForm
-          appId={appId}
-          submitLabel={t("common.add")}
-          onSubmit={handleSubmit}
-          onCancel={() => onOpenChange(false)}
-          onSubmittingChange={setIsFormSubmitting}
-          showButtons={false}
-        />
-      )}
+                <TabsContent value="app-specific" className="mt-0">
+                  <ProviderForm
+                    appId={appId}
+                    submitLabel={t("common.add")}
+                    onSubmit={handleSubmit}
+                    onCancel={() => onOpenChange(false)}
+                    onSubmittingChange={setIsFormSubmitting}
+                    showButtons={false}
+                  />
+                </TabsContent>
+
+                <TabsContent value="universal" className="mt-0">
+                  <UniversalProviderPanel />
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <ProviderForm
+                appId={appId}
+                submitLabel={t("common.add")}
+                onSubmit={handleSubmit}
+                onCancel={() => onOpenChange(false)}
+                onSubmittingChange={setIsFormSubmitting}
+                showButtons={false}
+              />
+            )}
+          </DialogBody>
+
+          <DialogFooter className="justify-end gap-3 sm:justify-end">
+            {footer}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {showUniversalTab && (
         <UniversalProviderFormModal
@@ -330,6 +353,6 @@ export function AddProviderDialog({
           initialPreset={selectedUniversalPreset}
         />
       )}
-    </FullScreenPanel>
+    </>
   );
 }

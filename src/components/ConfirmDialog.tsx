@@ -1,5 +1,7 @@
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -48,17 +50,26 @@ export function ConfirmDialog({
         }
       }}
     >
-      <DialogContent className="max-w-sm" zIndex={zIndex}>
-        <DialogHeader className="space-y-3 border-b-0 bg-transparent pb-0">
-          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
-            <IconComponent className={iconClass} />
-            {title}
-          </DialogTitle>
+      <DialogContent variant="confirm" zIndex={zIndex}>
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-muted/70">
+                <IconComponent className={iconClass} />
+              </div>
+              <DialogTitle className="pt-1 text-lg font-semibold">
+                {title}
+              </DialogTitle>
+            </div>
+            <DialogCloseButton onClick={onCancel} />
+          </div>
+        </DialogHeader>
+        <DialogBody className="py-2">
           <DialogDescription className="whitespace-pre-line text-sm leading-relaxed">
             {message}
           </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex gap-2 border-t-0 bg-transparent pt-2 sm:justify-end">
+        </DialogBody>
+        <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
             {cancelText || t("common.cancel")}
           </Button>

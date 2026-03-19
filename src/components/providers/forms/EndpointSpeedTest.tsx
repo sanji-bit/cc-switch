@@ -4,8 +4,16 @@ import { Zap, Loader2, Plus, X, AlertCircle, Save } from "lucide-react";
 import type { AppId } from "@/lib/api";
 import { vscodeApi } from "@/lib/api/vscode";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
 import type { CustomEndpoint, EndpointCandidate } from "@/types";
 
 // 端点测速超时配置（秒）
@@ -476,178 +484,181 @@ const EndpointSpeedTest: React.FC<EndpointSpeedTestProps> = ({
   );
 
   return (
-    <FullScreenPanel
-      isOpen={visible}
-      title={t("endpointTest.title")}
-      onClose={onClose}
-      footer={footer}
-    >
-      <div className="glass rounded-xl p-6 border border-white/10 flex flex-col gap-6">
-        {/* 测速控制栏 */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            {entries.length} {t("endpointTest.endpoints")}
+    <Dialog open={visible} onOpenChange={(nextOpen) => !nextOpen && onClose()}>
+      <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="pt-1 text-lg font-semibold">
+              {t("endpointTest.title")}
+            </DialogTitle>
+            <DialogCloseButton onClick={onClose} />
           </div>
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-              <input
-                type="checkbox"
-                checked={autoSelect}
-                onChange={(event) => {
-                  onAutoSelectChange(event.target.checked);
-                }}
-                className="h-3.5 w-3.5 rounded border-border-default bg-background text-primary focus:ring-2 focus:ring-primary/20"
-              />
-              {t("endpointTest.autoSelect")}
-            </label>
-            <Button
-              type="button"
-              onClick={runSpeedTest}
-              disabled={isTesting || !hasEndpoints}
-              size="sm"
-              className="h-7 w-24 gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
-            >
-              {isTesting ? (
-                <>
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  {t("endpointTest.testing")}
-                </>
-              ) : (
-                <>
-                  <Zap className="h-3.5 w-3.5" />
-                  {t("endpointTest.testSpeed")}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+        </DialogHeader>
 
-        {/* 添加输入 */}
-        <div className="space-y-1.5">
-          <div className="flex gap-2">
-            <Input
-              type="text"
-              value={customUrl}
-              placeholder={t("endpointTest.addEndpointPlaceholder")}
-              onChange={(event) => setCustomUrl(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  handleAddEndpoint();
-                }
-              }}
-              className="flex-1"
-            />
-            <Button
-              type="button"
-              onClick={handleAddEndpoint}
-              variant="outline"
-              size="icon"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          {addError && (
-            <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
-              <AlertCircle className="h-3 w-3" />
-              {addError}
-            </div>
-          )}
-        </div>
-
-        {/* 端点列表 */}
-        {hasEndpoints ? (
-          <div className="space-y-2">
-            {sortedEntries.map((entry) => {
-              const isSelected = normalizedSelected === entry.url;
-              const latency = entry.latency;
-
-              return (
-                <div
-                  key={entry.id}
-                  onClick={() => handleSelect(entry.url)}
-                  className={`group flex cursor-pointer items-center justify-between px-3 py-2.5 rounded-lg border transition text-foreground ${
-                    isSelected
-                      ? "border-primary/70 bg-primary/5 shadow-sm"
-                      : "border-border-default bg-background hover:bg-muted"
-                  }`}
+        <DialogBody>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="text-sm text-muted-foreground">
+                {entries.length} {t("endpointTest.endpoints")}
+              </div>
+              <div className="flex items-center gap-3">
+                <label className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+                  <input
+                    type="checkbox"
+                    checked={autoSelect}
+                    onChange={(event) => {
+                      onAutoSelectChange(event.target.checked);
+                    }}
+                    className="h-3.5 w-3.5 rounded border-border-default bg-background text-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                  {t("endpointTest.autoSelect")}
+                </label>
+                <Button
+                  type="button"
+                  onClick={runSpeedTest}
+                  disabled={isTesting || !hasEndpoints}
+                  size="sm"
+                  className="h-7 w-24 gap-1.5 bg-primary text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
                 >
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    {/* 选择指示器 */}
+                  {isTesting ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      {t("endpointTest.testing")}
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-3.5 w-3.5" />
+                      {t("endpointTest.testSpeed")}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex gap-2">
+                <Input
+                  type="text"
+                  value={customUrl}
+                  placeholder={t("endpointTest.addEndpointPlaceholder")}
+                  onChange={(event) => setCustomUrl(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      event.preventDefault();
+                      handleAddEndpoint();
+                    }
+                  }}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddEndpoint}
+                  variant="outline"
+                  size="icon"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {addError && (
+                <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+                  <AlertCircle className="h-3 w-3" />
+                  {addError}
+                </div>
+              )}
+            </div>
+
+            {hasEndpoints ? (
+              <div className="space-y-2">
+                {sortedEntries.map((entry) => {
+                  const isSelected = normalizedSelected === entry.url;
+                  const latency = entry.latency;
+
+                  return (
                     <div
-                      className={`h-1.5 w-1.5 flex-shrink-0 rounded-full transition ${
+                      key={entry.id}
+                      onClick={() => handleSelect(entry.url)}
+                      className={`group flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2.5 text-foreground transition ${
                         isSelected
-                          ? "bg-blue-500 dark:bg-blue-400"
-                          : "bg-gray-300 dark:bg-gray-700"
+                          ? "border-primary/70 bg-primary/5 shadow-sm"
+                          : "border-border-default bg-background hover:bg-muted"
                       }`}
-                    />
-
-                    {/* 内容 */}
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm text-foreground">
-                        {entry.url}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 右侧信息 */}
-                  <div className="flex items-center gap-2">
-                    {latency !== null ? (
-                      <div className="text-right">
+                    >
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
                         <div
-                          className={`font-mono text-sm font-medium ${
-                            latency < 300
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : latency < 500
-                                ? "text-yellow-600 dark:text-yellow-400"
-                                : latency < 800
-                                  ? "text-orange-600 dark:text-orange-400"
-                                  : "text-red-600 dark:text-red-400"
+                          className={`h-1.5 w-1.5 flex-shrink-0 rounded-full transition ${
+                            isSelected
+                              ? "bg-blue-500 dark:bg-blue-400"
+                              : "bg-gray-300 dark:bg-gray-700"
                           }`}
-                        >
-                          {latency}ms
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm text-foreground">
+                            {entry.url}
+                          </div>
                         </div>
                       </div>
-                    ) : isTesting ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                    ) : entry.error ? (
-                      <div className="text-xs text-gray-400">
-                        {t("endpointTest.failed")}
+
+                      <div className="flex items-center gap-2">
+                        {latency !== null ? (
+                          <div className="text-right">
+                            <div
+                              className={`font-mono text-sm font-medium ${
+                                latency < 300
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : latency < 500
+                                    ? "text-yellow-600 dark:text-yellow-400"
+                                    : latency < 800
+                                      ? "text-orange-600 dark:text-orange-400"
+                                      : "text-red-600 dark:text-red-400"
+                              }`}
+                            >
+                              {latency}ms
+                            </div>
+                          </div>
+                        ) : isTesting ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                        ) : entry.error ? (
+                          <div className="text-xs text-gray-400">
+                            {t("endpointTest.failed")}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-400">—</div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleRemoveEndpoint(entry);
+                          }}
+                          className="opacity-0 transition hover:text-red-600 group-hover:opacity-100 dark:hover:text-red-400"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
-                    ) : (
-                      <div className="text-xs text-gray-400">—</div>
-                    )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-md border border-dashed border-border-default bg-muted px-4 py-8 text-center text-sm text-muted-foreground">
+                {t("endpointTest.empty")}
+              </div>
+            )}
 
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleRemoveEndpoint(entry);
-                      }}
-                      className="opacity-0 transition hover:text-red-600 group-hover:opacity-100 dark:hover:text-red-400"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {lastError && (
+              <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
+                <AlertCircle className="h-3 w-3" />
+                {lastError}
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="rounded-md border border-dashed border-border-default bg-muted px-4 py-8 text-center text-sm text-muted-foreground">
-            {t("endpointTest.empty")}
-          </div>
-        )}
+        </DialogBody>
 
-        {/* 错误提示 */}
-        {lastError && (
-          <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400">
-            <AlertCircle className="h-3 w-3" />
-            {lastError}
-          </div>
-        )}
-      </div>
-    </FullScreenPanel>
+        <DialogFooter>{footer}</DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -13,7 +13,7 @@ import type { McpServer } from "@/types";
 import type { AppId } from "@/lib/api/types";
 import McpFormModal from "./McpFormModal";
 import { ConfirmDialog } from "../ConfirmDialog";
-import { Edit3, Trash2, ExternalLink } from "lucide-react";
+import { Pencil, Trash, ExternalLink } from "lucide-react";
 import { settingsApi } from "@/lib/api";
 import { mcpPresets } from "@/config/mcpPresets";
 import { toast } from "sonner";
@@ -290,7 +290,7 @@ const UnifiedMcpListItem: React.FC<UnifiedMcpListItemProps> = ({
           onClick={() => onEdit(id)}
           title={t("common.edit")}
         >
-          <Edit3 size={14} />
+          <Pencil size={14} />
         </Button>
         <Button
           type="button"
@@ -300,7 +300,7 @@ const UnifiedMcpListItem: React.FC<UnifiedMcpListItemProps> = ({
           onClick={() => onDelete(id)}
           title={t("common.delete")}
         >
-          <Trash2 size={14} />
+          <Trash size={14} />
         </Button>
       </div>
     </ListItemRow>

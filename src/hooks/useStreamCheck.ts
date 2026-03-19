@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,7 +11,14 @@ import { useResetCircuitBreaker } from "@/lib/query/failover";
 export function useStreamCheck(appId: AppId) {
   const { t } = useTranslation();
   const [checkingIds, setCheckingIds] = useState<Set<string>>(new Set());
+  const [lastResults, setLastResults] = useState<
+    Record<string, StreamCheckResult | null>
+  >({});
   const resetCircuitBreaker = useResetCircuitBreaker();
+
+  useEffect(() => {
+    setLastResults({});
+  }, [appId]);
 
   const checkProvider = useCallback(
     async (
@@ -22,6 +29,11 @@ export function useStreamCheck(appId: AppId) {
 
       try {
         const result = await streamCheckProvider(appId, providerId);
+
+        setLastResults((prev) => ({
+          ...prev,
+          [providerId]: result,
+        }));
 
         if (result.status === "operational") {
           toast.success(
@@ -58,6 +70,10 @@ export function useStreamCheck(appId: AppId) {
 
         return result;
       } catch (e) {
+        setLastResults((prev) => ({
+          ...prev,
+          [providerId]: null,
+        }));
         toast.error(
           t("streamCheck.error", {
             providerName: providerName,
@@ -82,5 +98,10 @@ export function useStreamCheck(appId: AppId) {
     [checkingIds],
   );
 
-  return { checkProvider, isChecking };
+  const getLastResult = useCallback(
+    (providerId: string) => lastResults[providerId] ?? null,
+    [lastResults],
+  );
+
+  return { checkProvider, isChecking, getLastResult };
 }

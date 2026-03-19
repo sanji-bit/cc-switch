@@ -1,8 +1,10 @@
 import { Monitor, Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "@/components/theme-provider";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
 
 export function ThemeSettings() {
   const { t } = useTranslation();
@@ -11,12 +13,12 @@ export function ThemeSettings() {
   return (
     <section className="space-y-2">
       <header className="space-y-1">
-        <h3 className="text-sm font-medium">{t("settings.theme")}</h3>
+        <h3 className="text-[16px] font-medium">{t("settings.theme")}</h3>
         <p className="text-xs text-muted-foreground">
           {t("settings.themeHint")}
         </p>
       </header>
-      <div className="inline-flex gap-1 rounded-md border border-border-default bg-background p-1">
+      <SegmentedControl>
         <ThemeButton
           active={theme === "light"}
           onClick={(e) => setTheme("light", e)}
@@ -38,7 +40,7 @@ export function ThemeSettings() {
         >
           {t("settings.themeSystem")}
         </ThemeButton>
-      </div>
+      </SegmentedControl>
     </section>
   );
 }
@@ -57,20 +59,14 @@ function ThemeButton({
   children,
 }: ThemeButtonProps) {
   return (
-    <Button
+    <SegmentedControlItem
       type="button"
       onClick={onClick}
-      size="sm"
-      variant={active ? "default" : "ghost"}
-      className={cn(
-        "min-w-[96px] gap-1.5",
-        active
-          ? "shadow-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted",
-      )}
+      active={active}
+      className="min-w-[96px] gap-1.5"
     >
       <Icon className="h-3.5 w-3.5" />
       {children}
-    </Button>
+    </SegmentedControlItem>
   );
 }

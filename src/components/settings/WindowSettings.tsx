@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { SettingsFormState } from "@/hooks/useSettings";
-import { AppWindow, MonitorUp, Power, EyeOff, Search } from "lucide-react";
+import { AppWindowMac, ArrowRight, Blocks, Power, EyeOff, Search } from "lucide-react";
 import { ToggleRow } from "@/components/ui/toggle-row";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -14,14 +14,15 @@ export function WindowSettings({ settings, onChange }: WindowSettingsProps) {
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center gap-2 pb-2 border-b border-border/40">
-        <AppWindow className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-medium">{t("settings.windowBehavior")}</h3>
+      <div>
+        <h3 className="text-[16px] font-medium">{t("settings.windowBehavior")}</h3>
       </div>
 
-      <div className="space-y-3">
+      <div className="overflow-hidden rounded-[12px] border border-border/60 bg-card">
         <ToggleRow
-          icon={<Power className="h-4 w-4 text-orange-500" />}
+          className="rounded-none bg-card hover:bg-muted/30"
+          contentClassName="min-w-0"
+          icon={<Power className="h-4 w-4 text-muted-foreground" />}
           title={t("settings.launchOnStartup")}
           description={t("settings.launchOnStartupDescription")}
           checked={!!settings.launchOnStartup}
@@ -36,9 +37,12 @@ export function WindowSettings({ settings, onChange }: WindowSettingsProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.3 }}
+              className="relative before:absolute before:left-4 before:right-4 before:top-0 before:h-px before:scale-y-50 before:bg-border/60 before:content-['']"
             >
               <ToggleRow
-                icon={<EyeOff className="h-4 w-4 text-green-500" />}
+                className="rounded-none bg-card hover:bg-muted/30"
+                contentClassName="min-w-0"
+                icon={<EyeOff className="h-4 w-4 text-muted-foreground" />}
                 title={t("settings.silentStartup")}
                 description={t("settings.silentStartupDescription")}
                 checked={!!settings.silentStartup}
@@ -48,41 +52,57 @@ export function WindowSettings({ settings, onChange }: WindowSettingsProps) {
           )}
         </AnimatePresence>
 
-        <ToggleRow
-          icon={<MonitorUp className="h-4 w-4 text-purple-500" />}
-          title={t("settings.enableClaudePluginIntegration")}
-          description={t("settings.enableClaudePluginIntegrationDescription")}
-          checked={!!settings.enableClaudePluginIntegration}
-          onCheckedChange={(value) =>
-            onChange({ enableClaudePluginIntegration: value })
-          }
-        />
+        <div className="relative before:absolute before:left-4 before:right-4 before:top-0 before:h-px before:scale-y-50 before:bg-border/60 before:content-['']">
+          <ToggleRow
+            className="rounded-none bg-card hover:bg-muted/30"
+            contentClassName="min-w-0"
+            icon={<Blocks className="h-4 w-4 text-muted-foreground" />}
+            title={t("settings.enableClaudePluginIntegration")}
+            description={t("settings.enableClaudePluginIntegrationDescription")}
+            checked={!!settings.enableClaudePluginIntegration}
+            onCheckedChange={(value) =>
+              onChange({ enableClaudePluginIntegration: value })
+            }
+          />
+        </div>
 
-        <ToggleRow
-          icon={<MonitorUp className="h-4 w-4 text-cyan-500" />}
-          title={t("settings.skipClaudeOnboarding")}
-          description={t("settings.skipClaudeOnboardingDescription")}
-          checked={!!settings.skipClaudeOnboarding}
-          onCheckedChange={(value) => onChange({ skipClaudeOnboarding: value })}
-        />
+        <div className="relative before:absolute before:left-4 before:right-4 before:top-0 before:h-px before:scale-y-50 before:bg-border/60 before:content-['']">
+          <ToggleRow
+            className="rounded-none bg-card hover:bg-muted/30"
+            contentClassName="min-w-0"
+            icon={<ArrowRight className="h-4 w-4 text-muted-foreground" />}
+            title={t("settings.skipClaudeOnboarding")}
+            description={t("settings.skipClaudeOnboardingDescription")}
+            checked={!!settings.skipClaudeOnboarding}
+            onCheckedChange={(value) => onChange({ skipClaudeOnboarding: value })}
+          />
+        </div>
 
-        <ToggleRow
-          icon={<Search className="h-4 w-4 text-amber-500" />}
-          title={t("settings.toolSearchBypass")}
-          description={t("settings.toolSearchBypassDescription")}
-          checked={!!settings.toolSearchBypass}
-          onCheckedChange={(value) => onChange({ toolSearchBypass: value })}
-        />
+        <div className="relative before:absolute before:left-4 before:right-4 before:top-0 before:h-px before:scale-y-50 before:bg-border/60 before:content-['']">
+          <ToggleRow
+            className="rounded-none bg-card hover:bg-muted/30"
+            contentClassName="min-w-0"
+            icon={<Search className="h-4 w-4 text-muted-foreground" />}
+            title={t("settings.toolSearchBypass")}
+            description={t("settings.toolSearchBypassDescription")}
+            checked={!!settings.toolSearchBypass}
+            onCheckedChange={(value) => onChange({ toolSearchBypass: value })}
+          />
+        </div>
 
-        <ToggleRow
-          icon={<AppWindow className="h-4 w-4 text-blue-500" />}
-          title={t("settings.minimizeToTray")}
-          description={t("settings.minimizeToTrayDescription")}
-          checked={settings.minimizeToTrayOnClose}
-          onCheckedChange={(value) =>
-            onChange({ minimizeToTrayOnClose: value })
-          }
-        />
+        <div className="relative before:absolute before:left-4 before:right-4 before:top-0 before:h-px before:scale-y-50 before:bg-border/60 before:content-['']">
+          <ToggleRow
+            className="rounded-none bg-card hover:bg-muted/30"
+            contentClassName="min-w-0"
+            icon={<AppWindowMac className="h-4 w-4 text-muted-foreground" />}
+            title={t("settings.minimizeToTray")}
+            description={t("settings.minimizeToTrayDescription")}
+            checked={settings.minimizeToTrayOnClose}
+            onCheckedChange={(value) =>
+              onChange({ minimizeToTrayOnClose: value })
+            }
+          />
+        </div>
       </div>
     </section>
   );

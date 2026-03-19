@@ -6,7 +6,6 @@ import type {
 } from "@dnd-kit/core";
 import type { Provider } from "@/types";
 import type { AppId } from "@/lib/api";
-import type { StreamCheckResult } from "@/lib/api/model-test";
 import { cn } from "@/lib/utils";
 import { ProviderActions } from "@/components/providers/ProviderActions";
 import { ProviderIcon } from "@/components/ProviderIcon";
@@ -42,7 +41,6 @@ interface ProviderCardProps {
   onTest?: (provider: Provider) => void;
   onOpenTerminal?: (provider: Provider) => void;
   isTesting?: boolean;
-  lastTestResult?: StreamCheckResult | null;
   isProxyRunning: boolean;
   isProxyTakeover?: boolean; // 代理接管模式（Live配置已被接管，切换为热切换）
   dragHandleProps?: DragHandleProps;
@@ -107,7 +105,6 @@ export function ProviderCard({
   onTest,
   onOpenTerminal,
   isTesting,
-  lastTestResult,
   isProxyRunning,
   isProxyTakeover = false,
   dragHandleProps,
@@ -165,6 +162,7 @@ export function ProviderCard({
     usage?.success && usage.data && usage.data.length > 1;
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (hasMultiplePlans) {
@@ -199,24 +197,37 @@ export function ProviderCard({
   const shouldUseBlue =
     (isAnyOmo && isActiveProvider) ||
     (!isAnyOmo && !isProxyTakeover && isActiveProvider);
-  const hasPassedTest = lastTestResult?.status === "operational";
+
+  const isEnabled = isAnyOmo
+    ? isCurrent
+    : appId === "opencode" || appId === "openclaw"
+      ? isInConfig
+      : isAutoFailoverEnabled
+        ? isInFailoverQueue
+        : isCurrent;
 
   return (
     <div
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "group flex h-full w-full max-w-[480px] flex-col overflow-hidden rounded-[24px] border border-border/80 bg-card text-card-foreground transition-shadow duration-200",
-        shouldUseGreen && "border-emerald-500/80 shadow-sm shadow-emerald-500/10",
-        shouldUseBlue && "border-blue-500/90 shadow-sm shadow-blue-500/10",
-        !shouldUseGreen && !shouldUseBlue && "hover:shadow-lg",
+        "group flex h-full w-full flex-col overflow-hidden rounded-[24px] border border-border/80 bg-card text-card-foreground transition-shadow duration-200",
+        shouldUseGreen &&
+          "border-2 border-emerald-500/80 hover:shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]",
+        shouldUseBlue &&
+          "border-2 border-blue-500/90 hover:shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]",
+        !shouldUseGreen &&
+          !shouldUseBlue &&
+          "hover:shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]",
         dragHandleProps?.isDragging &&
-          "z-10 scale-[1.02] cursor-grabbing border-primary shadow-lg",
+          "z-10 scale-[1.02] cursor-grabbing border-primary shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]",
       )}
     >
       <div className="flex items-center gap-4 px-4 py-4">
         <button
           type="button"
           className={cn(
-            "relative flex h-[72px] w-[72px] flex-shrink-0 cursor-grab items-center justify-center self-center rounded-[16px] border border-border bg-muted/35 active:cursor-grabbing",
+            "relative flex h-[72px] w-[72px] flex-shrink-0 cursor-grab items-center justify-center self-center rounded-[16px] bg-muted/35 active:cursor-grabbing",
             dragHandleProps?.isDragging && "cursor-grabbing",
           )}
           aria-label={t("provider.dragHandle")}
@@ -229,9 +240,6 @@ export function ProviderCard({
             color={provider.iconColor}
             size={40}
           />
-          {hasPassedTest && (
-            <span className="absolute bottom-0 right-0 flex h-5 w-5 translate-x-1 translate-y-1 items-center justify-center rounded-full border-[3px] border-card bg-emerald-500" />
-          )}
         </button>
 
         <div className="flex min-w-0 flex-1 items-center">
@@ -251,6 +259,12 @@ export function ProviderCard({
                 {isOmoSlim && (
                   <span className="inline-flex items-center rounded-md bg-indigo-100 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
                     Slim
+                  </span>
+                )}
+
+                {isEnabled && (
+                  <span className="inline-flex items-center rounded-md bg-emerald-100 px-1.5 py-0.5 text-[14px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    {t("provider.inUse", { defaultValue: "已启用" })}
                   </span>
                 )}
 
@@ -302,13 +316,14 @@ export function ProviderCard({
       </div>
 
       <div className="mt-auto px-4 pb-3">
-        <div className="border-t border-border/50 pt-3">
+        <div className="border-t-[0.5px] border-border/50 pt-3">
           <ProviderActions
             appId={appId}
             isCurrent={isCurrent}
             isInConfig={isInConfig}
             isTesting={isTesting}
             isProxyTakeover={isProxyTakeover}
+            isHovered={isHovered}
             isOmo={isAnyOmo}
             onSwitch={() => onSwitch(provider)}
             onEdit={() => onEdit(provider)}
@@ -334,7 +349,7 @@ export function ProviderCard({
 
       {isExpanded && hasMultiplePlans && (
         <div className="px-4 py-4">
-          <div className="border-t border-border/50 px-4 pt-4">
+          <div className="border-t-[0.5px] border-border/50 px-4 pt-4">
             <UsageFooter
               provider={provider}
               providerId={provider.id}

@@ -3,6 +3,11 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DialogBody,
+  DialogCloseButton,
+  DialogSurface,
+} from "@/components/ui/dialog";
 import { isWindows, isLinux } from "@/lib/platform";
 import { isTextEditableTarget } from "@/utils/domUtils";
 
@@ -12,6 +17,9 @@ interface FullScreenPanelProps {
   onClose: () => void;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  mode?: "fullscreen" | "dialog";
+  maxWidthClassName?: string;
+  insetClassName?: string;
 }
 
 const DRAG_BAR_HEIGHT = isWindows() || isLinux() ? 0 : 28; // px - match App.tsx
@@ -28,6 +36,9 @@ export const FullScreenPanel: React.FC<FullScreenPanelProps> = ({
   onClose,
   children,
   footer,
+  mode = "fullscreen",
+  maxWidthClassName = "max-w-[960px]",
+  insetClassName = "p-6",
 }) => {
   React.useEffect(() => {
     if (isOpen) {
@@ -71,6 +82,8 @@ export const FullScreenPanel: React.FC<FullScreenPanelProps> = ({
     };
   }, [isOpen]);
 
+  const isDialog = mode === "dialog";
+
   return createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -79,67 +92,104 @@ export const FullScreenPanel: React.FC<FullScreenPanelProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[60] flex flex-col"
-          style={{ backgroundColor: "hsl(var(--background))" }}
+          className="fixed inset-0 z-[60]"
         >
-          {/* Drag region - match App.tsx */}
-          <div
-            data-tauri-drag-region
-            style={
-              {
-                WebkitAppRegion: "drag",
-                height: DRAG_BAR_HEIGHT,
-              } as React.CSSProperties
-            }
-          />
-
-          {/* Header - match App.tsx */}
-          <div
-            className="flex-shrink-0 flex items-center"
-            data-tauri-drag-region
-            style={
-              {
-                WebkitAppRegion: "drag",
-                backgroundColor: "hsl(var(--background))",
-                height: HEADER_HEIGHT,
-              } as React.CSSProperties
-            }
-          >
-            <div
-              className="px-6 w-full flex items-center gap-4"
-              data-tauri-drag-region
-              style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={onClose}
-                className="rounded-lg select-none"
-                style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+          {isDialog ? (
+            <div className={`flex h-full w-full items-center justify-center ${insetClassName}`}>
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                transition={{ duration: 0.18 }}
               >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <h2 className="text-lg font-semibold text-foreground select-none">
-                {title}
-              </h2>
+                <DialogSurface
+                  asChild
+                  variant="form"
+                  zIndex="alert"
+                  closeOnOverlayClick
+                  className={`relative z-[1] w-full ${maxWidthClassName}`}
+                >
+                  <div>
+                    <div className="flex h-16 flex-shrink-0 items-center px-6">
+                      <div className="flex w-full items-center justify-between gap-4">
+                        <h2 className="select-none text-lg font-semibold text-foreground">
+                          {title}
+                        </h2>
+                        <DialogCloseButton onClick={onClose} className="select-none" />
+                      </div>
+                    </div>
+
+                    <DialogBody>
+                      <div className="w-full space-y-6">{children}</div>
+                    </DialogBody>
+
+                    {footer && (
+                      <div className="flex flex-shrink-0 items-center justify-end gap-3 border-t border-border/70 bg-background/95 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+                        {footer}
+                      </div>
+                    )}
+                  </div>
+                </DialogSurface>
+              </motion.div>
             </div>
-          </div>
+          ) : (
+            <div className="flex h-full flex-col" style={{ backgroundColor: "hsl(var(--background))" }}>
+              <div
+                data-tauri-drag-region
+                style={
+                  {
+                    WebkitAppRegion: "drag",
+                    height: DRAG_BAR_HEIGHT,
+                  } as React.CSSProperties
+                }
+              />
 
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto scroll-overlay">
-            <div className="px-6 py-6 space-y-6 w-full">{children}</div>
-          </div>
-
-          {/* Footer */}
-          {footer && (
-            <div
-              className="flex-shrink-0 py-4 border-t border-border-default"
-              style={{ backgroundColor: "hsl(var(--background))" }}
-            >
-              <div className="px-6 flex items-center justify-end gap-3">
-                {footer}
+              <div
+                className="flex-shrink-0 flex items-center"
+                data-tauri-drag-region
+                style={
+                  {
+                    WebkitAppRegion: "drag",
+                    backgroundColor: "hsl(var(--background))",
+                    height: HEADER_HEIGHT,
+                  } as React.CSSProperties
+                }
+              >
+                <div
+                  className="px-6 w-full flex items-center gap-4"
+                  data-tauri-drag-region
+                  style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
+                >
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={onClose}
+                    className="rounded-lg select-none"
+                    style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                  </Button>
+                  <h2 className="text-lg font-semibold text-foreground select-none">
+                    {title}
+                  </h2>
+                </div>
               </div>
+
+              <div className="flex-1 overflow-y-auto scroll-overlay">
+                <div className="px-6 py-6 space-y-6 w-full">{children}</div>
+              </div>
+
+              {footer && (
+                <div
+                  className="flex-shrink-0 py-4 border-t border-border-default"
+                  style={{ backgroundColor: "hsl(var(--background))" }}
+                >
+                  <div className="px-6 flex items-center justify-end gap-3">
+                    {footer}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </motion.div>

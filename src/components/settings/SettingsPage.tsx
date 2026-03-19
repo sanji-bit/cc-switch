@@ -178,7 +178,7 @@ export function SettingsPage({
   const isBusy = useMemo(() => isLoading && !settings, [isLoading, settings]);
 
   return (
-    <div className="flex flex-col h-full overflow-hidden px-6">
+    <div className="flex h-full flex-col overflow-hidden">
       {isBusy ? (
         <div className="flex flex-1 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -187,29 +187,41 @@ export function SettingsPage({
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="flex flex-col h-full"
+          className="flex h-full flex-col"
         >
-          <TabsList className="grid w-full grid-cols-5 mb-6 glass rounded-lg">
-            <TabsTrigger value="general">
-              {t("settings.tabGeneral")}
+          <div className="px-6">
+            <TabsList className="flex w-full items-center justify-start gap-6 rounded-none border-b border-border/70 bg-transparent p-0 text-sm">
+              <TabsTrigger
+                variant="line"
+                value="general"
+                className="min-w-0 rounded-none px-0 pb-3 pt-0"
+              >
+                {t("settings.tabGeneral")}
+              </TabsTrigger>
+            <TabsTrigger variant="line" value="proxy" className="min-w-0 rounded-none px-0 pb-3 pt-0">
+              {t("settings.tabProxy")}
             </TabsTrigger>
-            <TabsTrigger value="proxy">{t("settings.tabProxy")}</TabsTrigger>
-            <TabsTrigger value="advanced">
+            <TabsTrigger variant="line" value="advanced" className="min-w-0 rounded-none px-0 pb-3 pt-0">
               {t("settings.tabAdvanced")}
             </TabsTrigger>
-            <TabsTrigger value="usage">{t("usage.title")}</TabsTrigger>
-            <TabsTrigger value="about">{t("common.about")}</TabsTrigger>
-          </TabsList>
+            <TabsTrigger variant="line" value="usage" className="min-w-0 rounded-none px-0 pb-3 pt-0">
+              {t("usage.title")}
+            </TabsTrigger>
+            <TabsTrigger variant="line" value="about" className="min-w-0 rounded-none px-0 pb-3 pt-0">
+              {t("common.about")}
+            </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <div className="flex-1 min-h-0 flex flex-col">
-            <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2">
+          <div className="flex min-h-0 flex-1 flex-col px-6 py-6">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden">
               <TabsContent value="general" className="space-y-6 mt-0">
                 {settings ? (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="space-y-6"
+                    className="space-y-8"
                   >
                     <LanguageSettings
                       value={settings.language}

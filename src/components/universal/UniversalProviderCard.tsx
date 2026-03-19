@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Edit2, Trash2, RefreshCw, Globe } from "lucide-react";
+import { Pencil, Trash, RefreshCw, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProviderIcon } from "@/components/ProviderIcon";
 import type { UniversalProvider } from "@/types";
@@ -60,7 +60,7 @@ export function UniversalProviderCard({
             onClick={() => onEdit(provider)}
             title={t("common.edit", { defaultValue: "编辑" })}
           >
-            <Edit2 className="h-4 w-4" />
+            <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
@@ -69,7 +69,7 @@ export function UniversalProviderCard({
             onClick={() => onDelete(provider.id)}
             title={t("common.delete", { defaultValue: "删除" })}
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
           </Button>
         </div>
       </div>

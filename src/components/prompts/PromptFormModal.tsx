@@ -3,6 +3,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -97,16 +99,19 @@ const PromptFormModal: React.FC<PromptFormModalProps> = ({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle>
-            {editingId
-              ? t("prompts.editTitle", { appName })
-              : t("prompts.addTitle", { appName })}
-          </DialogTitle>
+      <DialogContent variant="form" className="max-w-2xl">
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="pt-1">
+              {editingId
+                ? t("prompts.editTitle", { appName })
+                : t("prompts.addTitle", { appName })}
+            </DialogTitle>
+            <DialogCloseButton onClick={onClose} />
+          </div>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto space-y-4 px-6 py-4">
+        <DialogBody className="space-y-4 py-2">
           <div>
             <Label htmlFor="name">{t("prompts.name")}</Label>
             <Input
@@ -139,7 +144,7 @@ const PromptFormModal: React.FC<PromptFormModalProps> = ({
               minHeight="300px"
             />
           </div>
-        </div>
+        </DialogBody>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>

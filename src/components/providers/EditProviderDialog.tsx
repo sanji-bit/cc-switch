@@ -2,7 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Provider } from "@/types";
 import {
   ProviderForm,
@@ -190,32 +198,42 @@ export function EditProviderDialog({
   }
 
   return (
-    <FullScreenPanel
-      isOpen={open}
-      title={t("provider.editProvider")}
-      onClose={() => onOpenChange(false)}
-      footer={
-        <Button
-          type="submit"
-          form="provider-form"
-          disabled={isFormSubmitting}
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          {t("common.save")}
-        </Button>
-      }
-    >
-      <ProviderForm
-        appId={appId}
-        providerId={provider.id}
-        submitLabel={t("common.save")}
-        onSubmit={handleSubmit}
-        onCancel={() => onOpenChange(false)}
-        onSubmittingChange={setIsFormSubmitting}
-        initialData={initialData}
-        showButtons={false}
-      />
-    </FullScreenPanel>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="pt-1 text-lg font-semibold">
+              {t("provider.editProvider")}
+            </DialogTitle>
+            <DialogCloseButton onClick={() => onOpenChange(false)} />
+          </div>
+        </DialogHeader>
+
+        <DialogBody>
+          <ProviderForm
+            appId={appId}
+            providerId={provider.id}
+            submitLabel={t("common.save")}
+            onSubmit={handleSubmit}
+            onCancel={() => onOpenChange(false)}
+            onSubmittingChange={setIsFormSubmitting}
+            initialData={initialData}
+            showButtons={false}
+          />
+        </DialogBody>
+
+        <DialogFooter>
+          <Button
+            type="submit"
+            form="provider-form"
+            disabled={isFormSubmitting}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {t("common.save")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

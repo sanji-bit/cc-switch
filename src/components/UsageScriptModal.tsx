@@ -12,10 +12,18 @@ import * as prettier from "prettier/standalone";
 import * as parserBabel from "prettier/parser-babel";
 import * as pluginEstree from "prettier/plugins/estree";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { cn } from "@/lib/utils";
 
@@ -449,374 +457,369 @@ const UsageScriptModal: React.FC<UsageScriptModalProps> = ({
   );
 
   return (
-    <FullScreenPanel
-      isOpen={isOpen}
-      title={`${t("usageScript.title")} - ${provider.name}`}
-      onClose={onClose}
-      footer={footer}
-    >
-      <div className="glass rounded-xl border border-white/10 px-6 py-4 flex items-center justify-between gap-4">
-        <p className="text-base font-medium leading-none text-foreground">
-          {t("usageScript.enableUsageQuery")}
-        </p>
-        <Switch
-          checked={script.enabled}
-          onCheckedChange={handleEnableToggle}
-          aria-label={t("usageScript.enableUsageQuery")}
-        />
-      </div>
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
+          <DialogHeader className="gap-4 pb-2">
+            <div className="flex items-start justify-between gap-4">
+              <DialogTitle className="pt-1 text-lg font-semibold">
+                {`${t("usageScript.title")} - ${provider.name}`}
+              </DialogTitle>
+              <DialogCloseButton onClick={onClose} />
+            </div>
+          </DialogHeader>
 
-      {script.enabled && (
-        <div className="space-y-6">
-          {/* 预设模板选择 */}
-          <div className="space-y-4 glass rounded-xl border border-white/10 p-6">
-            <Label className="text-base font-medium">
-              {t("usageScript.presetTemplate")}
-            </Label>
-            <div className="flex gap-2 flex-wrap">
-              {Object.keys(PRESET_TEMPLATES).map((name) => {
-                const isSelected = selectedTemplate === name;
-                return (
-                  <Button
-                    key={name}
-                    type="button"
-                    variant={isSelected ? "default" : "outline"}
-                    size="sm"
-                    className={cn(
-                      "rounded-lg border",
-                      isSelected
-                        ? "shadow-sm"
-                        : "bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                    )}
-                    onClick={() => handleUsePreset(name)}
-                  >
-                    {t(TEMPLATE_NAME_KEYS[name])}
-                  </Button>
-                );
-              })}
+          <DialogBody>
+            <div className="glass flex items-center justify-between gap-4 rounded-xl border border-white/10 px-6 py-4">
+              <p className="text-base font-medium leading-none text-foreground">
+                {t("usageScript.enableUsageQuery")}
+              </p>
+              <Switch
+                checked={script.enabled}
+                onCheckedChange={handleEnableToggle}
+                aria-label={t("usageScript.enableUsageQuery")}
+              />
             </div>
 
-            {/* 自定义模式：变量提示和具体值 */}
-            {selectedTemplate === TEMPLATE_KEYS.CUSTOM && (
-              <div className="space-y-2 border-t border-white/10 pt-3">
-                <h4 className="text-sm font-medium text-foreground">
-                  {t("usageScript.supportedVariables")}
-                </h4>
-                <div className="space-y-1 text-xs">
-                  {/* baseUrl */}
-                  <div className="flex items-center gap-2 py-1">
-                    <code className="text-emerald-500 dark:text-emerald-400 font-mono shrink-0">
-                      {"{{baseUrl}}"}
-                    </code>
-                    <span className="text-muted-foreground/50">=</span>
-                    {providerCredentials.baseUrl ? (
-                      <code className="text-foreground/70 break-all font-mono">
-                        {providerCredentials.baseUrl}
-                      </code>
-                    ) : (
-                      <span className="text-muted-foreground/50 italic">
-                        {t("common.notSet") || "未设置"}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* apiKey */}
-                  <div className="flex items-center gap-2 py-1">
-                    <code className="text-emerald-500 dark:text-emerald-400 font-mono shrink-0">
-                      {"{{apiKey}}"}
-                    </code>
-                    <span className="text-muted-foreground/50">=</span>
-                    {providerCredentials.apiKey ? (
-                      <>
-                        {showApiKey ? (
-                          <code className="text-foreground/70 break-all font-mono">
-                            {providerCredentials.apiKey}
-                          </code>
-                        ) : (
-                          <code className="text-foreground/70 font-mono">
-                            ••••••••
-                          </code>
-                        )}
-                        <button
+            {script.enabled && (
+              <div className="space-y-6">
+                <div className="glass space-y-4 rounded-xl border border-white/10 p-6">
+                  <Label className="text-base font-medium">
+                    {t("usageScript.presetTemplate")}
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.keys(PRESET_TEMPLATES).map((name) => {
+                      const isSelected = selectedTemplate === name;
+                      return (
+                        <Button
+                          key={name}
                           type="button"
-                          onClick={() => setShowApiKey(!showApiKey)}
-                          className="text-muted-foreground hover:text-foreground transition-colors ml-1"
-                          aria-label={
-                            showApiKey
-                              ? t("apiKeyInput.hide")
-                              : t("apiKeyInput.show")
-                          }
-                        >
-                          {showApiKey ? (
-                            <EyeOff size={12} />
-                          ) : (
-                            <Eye size={12} />
+                          variant={isSelected ? "default" : "outline"}
+                          size="sm"
+                          className={cn(
+                            "rounded-lg border",
+                            isSelected
+                              ? "shadow-sm"
+                              : "bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
                           )}
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-muted-foreground/50 italic">
-                        {t("common.notSet") || "未设置"}
-                      </span>
-                    )}
+                          onClick={() => handleUsePreset(name)}
+                        >
+                          {t(TEMPLATE_NAME_KEYS[name])}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedTemplate === TEMPLATE_KEYS.CUSTOM && (
+                    <div className="space-y-2 border-t border-white/10 pt-3">
+                      <h4 className="text-sm font-medium text-foreground">
+                        {t("usageScript.supportedVariables")}
+                      </h4>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-2 py-1">
+                          <code className="shrink-0 font-mono text-emerald-500 dark:text-emerald-400">
+                            {"{{baseUrl}}"}
+                          </code>
+                          <span className="text-muted-foreground/50">=</span>
+                          {providerCredentials.baseUrl ? (
+                            <code className="break-all font-mono text-foreground/70">
+                              {providerCredentials.baseUrl}
+                            </code>
+                          ) : (
+                            <span className="italic text-muted-foreground/50">
+                              {t("common.notSet") || "未设置"}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 py-1">
+                          <code className="shrink-0 font-mono text-emerald-500 dark:text-emerald-400">
+                            {"{{apiKey}}"}
+                          </code>
+                          <span className="text-muted-foreground/50">=</span>
+                          {providerCredentials.apiKey ? (
+                            <>
+                              {showApiKey ? (
+                                <code className="break-all font-mono text-foreground/70">
+                                  {providerCredentials.apiKey}
+                                </code>
+                              ) : (
+                                <code className="font-mono text-foreground/70">
+                                  ••••••••
+                                </code>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => setShowApiKey(!showApiKey)}
+                                className="ml-1 text-muted-foreground transition-colors hover:text-foreground"
+                                aria-label={
+                                  showApiKey
+                                    ? t("apiKeyInput.hide")
+                                    : t("apiKeyInput.show")
+                                }
+                              >
+                                {showApiKey ? (
+                                  <EyeOff size={12} />
+                                ) : (
+                                  <Eye size={12} />
+                                )}
+                              </button>
+                            </>
+                          ) : (
+                            <span className="italic text-muted-foreground/50">
+                              {t("common.notSet") || "未设置"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {shouldShowCredentialsConfig && (
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between">
+                        <h4 className="text-sm font-medium text-foreground">
+                          {t("usageScript.credentialsConfig")}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          {t("usageScript.credentialsHint")}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        {selectedTemplate === TEMPLATE_KEYS.GENERAL && (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor="usage-api-key">
+                                API Key{" "}
+                                <span className="text-xs font-normal text-muted-foreground">
+                                  ({t("usageScript.optional")})
+                                </span>
+                              </Label>
+                              <div className="relative">
+                                <Input
+                                  id="usage-api-key"
+                                  type={showApiKey ? "text" : "password"}
+                                  value={script.apiKey || ""}
+                                  onChange={(e) =>
+                                    setScript({ ...script, apiKey: e.target.value })
+                                  }
+                                  placeholder={t("usageScript.apiKeyPlaceholder")}
+                                  autoComplete="off"
+                                  className="border-white/10"
+                                />
+                                {script.apiKey && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowApiKey(!showApiKey)}
+                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground transition-colors hover:text-foreground"
+                                    aria-label={
+                                      showApiKey
+                                        ? t("apiKeyInput.hide")
+                                        : t("apiKeyInput.show")
+                                    }
+                                  >
+                                    {showApiKey ? (
+                                      <EyeOff size={16} />
+                                    ) : (
+                                      <Eye size={16} />
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="usage-base-url">
+                                {t("usageScript.baseUrl")}{" "}
+                                <span className="text-xs font-normal text-muted-foreground">
+                                  ({t("usageScript.optional")})
+                                </span>
+                              </Label>
+                              <Input
+                                id="usage-base-url"
+                                type="text"
+                                value={script.baseUrl || ""}
+                                onChange={(e) =>
+                                  setScript({ ...script, baseUrl: e.target.value })
+                                }
+                                placeholder={t("usageScript.baseUrlPlaceholder")}
+                                autoComplete="off"
+                                className="border-white/10"
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {selectedTemplate === TEMPLATE_KEYS.NEW_API && (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor="usage-newapi-base-url">
+                                {t("usageScript.baseUrl")}
+                              </Label>
+                              <Input
+                                id="usage-newapi-base-url"
+                                type="text"
+                                value={script.baseUrl || ""}
+                                onChange={(e) =>
+                                  setScript({ ...script, baseUrl: e.target.value })
+                                }
+                                placeholder="https://api.newapi.com"
+                                autoComplete="off"
+                                className="border-white/10"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="usage-access-token">
+                                {t("usageScript.accessToken")}
+                              </Label>
+                              <div className="relative">
+                                <Input
+                                  id="usage-access-token"
+                                  type={showAccessToken ? "text" : "password"}
+                                  value={script.accessToken || ""}
+                                  onChange={(e) =>
+                                    setScript({
+                                      ...script,
+                                      accessToken: e.target.value,
+                                    })
+                                  }
+                                  placeholder={t("usageScript.accessTokenPlaceholder")}
+                                  autoComplete="off"
+                                  className="border-white/10"
+                                />
+                                {script.accessToken && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setShowAccessToken(!showAccessToken)
+                                    }
+                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground transition-colors hover:text-foreground"
+                                    aria-label={
+                                      showAccessToken
+                                        ? t("apiKeyInput.hide")
+                                        : t("apiKeyInput.show")
+                                    }
+                                  >
+                                    {showAccessToken ? (
+                                      <EyeOff size={16} />
+                                    ) : (
+                                      <Eye size={16} />
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="usage-user-id">
+                                {t("usageScript.userId")}
+                              </Label>
+                              <Input
+                                id="usage-user-id"
+                                type="text"
+                                value={script.userId || ""}
+                                onChange={(e) =>
+                                  setScript({ ...script, userId: e.target.value })
+                                }
+                                placeholder={t("usageScript.userIdPlaceholder")}
+                                autoComplete="off"
+                                className="border-white/10"
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid gap-4 border-t border-white/10 pt-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="usage-timeout">
+                        {t("usageScript.timeoutSeconds")}
+                      </Label>
+                      <Input
+                        id="usage-timeout"
+                        type="number"
+                        min={0}
+                        value={script.timeout ?? 10}
+                        onChange={(e) =>
+                          setScript({
+                            ...script,
+                            timeout: validateTimeout(e.target.value),
+                          })
+                        }
+                        onBlur={(e) =>
+                          setScript({
+                            ...script,
+                            timeout: validateTimeout(e.target.value),
+                          })
+                        }
+                        className="border-white/10"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="usage-interval">
+                        {t("usageScript.autoIntervalMinutes")}
+                      </Label>
+                      <Input
+                        id="usage-interval"
+                        type="number"
+                        min={0}
+                        max={1440}
+                        value={
+                          script.autoQueryInterval ?? script.autoIntervalMinutes ?? 0
+                        }
+                        onChange={(e) =>
+                          setScript({
+                            ...script,
+                            autoQueryInterval: validateAndClampInterval(
+                              e.target.value,
+                            ),
+                          })
+                        }
+                        onBlur={(e) =>
+                          setScript({
+                            ...script,
+                            autoQueryInterval: validateAndClampInterval(
+                              e.target.value,
+                            ),
+                          })
+                        }
+                        className="border-white/10"
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
 
-            {/* 凭证配置 */}
-            {shouldShowCredentialsConfig && (
-              <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <h4 className="text-sm font-medium text-foreground">
-                    {t("usageScript.credentialsConfig")}
-                  </h4>
-                  <p className="text-xs text-muted-foreground">
-                    {t("usageScript.credentialsHint")}
-                  </p>
+                <div className="glass space-y-4 rounded-xl border border-white/10 p-6">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-base font-medium">
+                      {t("usageScript.extractorCode")}
+                    </Label>
+                    <div className="text-xs text-muted-foreground">
+                      {t("usageScript.extractorHint")}
+                    </div>
+                  </div>
+                  <JsonEditor
+                    id="usage-code"
+                    value={script.code || ""}
+                    onChange={(value) => setScript({ ...script, code: value })}
+                    height={480}
+                    language="javascript"
+                    showMinimap={false}
+                  />
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  {selectedTemplate === TEMPLATE_KEYS.GENERAL && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="usage-api-key">
-                          API Key{" "}
-                          <span className="text-xs text-muted-foreground font-normal">
-                            ({t("usageScript.optional")})
-                          </span>
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="usage-api-key"
-                            type={showApiKey ? "text" : "password"}
-                            value={script.apiKey || ""}
-                            onChange={(e) =>
-                              setScript({ ...script, apiKey: e.target.value })
-                            }
-                            placeholder={t("usageScript.apiKeyPlaceholder")}
-                            autoComplete="off"
-                            className="border-white/10"
-                          />
-                          {script.apiKey && (
-                            <button
-                              type="button"
-                              onClick={() => setShowApiKey(!showApiKey)}
-                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
-                              aria-label={
-                                showApiKey
-                                  ? t("apiKeyInput.hide")
-                                  : t("apiKeyInput.show")
-                              }
-                            >
-                              {showApiKey ? (
-                                <EyeOff size={16} />
-                              ) : (
-                                <Eye size={16} />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="usage-base-url">
-                          {t("usageScript.baseUrl")}{" "}
-                          <span className="text-xs text-muted-foreground font-normal">
-                            ({t("usageScript.optional")})
-                          </span>
-                        </Label>
-                        <Input
-                          id="usage-base-url"
-                          type="text"
-                          value={script.baseUrl || ""}
-                          onChange={(e) =>
-                            setScript({ ...script, baseUrl: e.target.value })
-                          }
-                          placeholder={t("usageScript.baseUrlPlaceholder")}
-                          autoComplete="off"
-                          className="border-white/10"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {selectedTemplate === TEMPLATE_KEYS.NEW_API && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="usage-newapi-base-url">
-                          {t("usageScript.baseUrl")}
-                        </Label>
-                        <Input
-                          id="usage-newapi-base-url"
-                          type="text"
-                          value={script.baseUrl || ""}
-                          onChange={(e) =>
-                            setScript({ ...script, baseUrl: e.target.value })
-                          }
-                          placeholder="https://api.newapi.com"
-                          autoComplete="off"
-                          className="border-white/10"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="usage-access-token">
-                          {t("usageScript.accessToken")}
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="usage-access-token"
-                            type={showAccessToken ? "text" : "password"}
-                            value={script.accessToken || ""}
-                            onChange={(e) =>
-                              setScript({
-                                ...script,
-                                accessToken: e.target.value,
-                              })
-                            }
-                            placeholder={t(
-                              "usageScript.accessTokenPlaceholder",
-                            )}
-                            autoComplete="off"
-                            className="border-white/10"
-                          />
-                          {script.accessToken && (
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setShowAccessToken(!showAccessToken)
-                              }
-                              className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors"
-                              aria-label={
-                                showAccessToken
-                                  ? t("apiKeyInput.hide")
-                                  : t("apiKeyInput.show")
-                              }
-                            >
-                              {showAccessToken ? (
-                                <EyeOff size={16} />
-                              ) : (
-                                <Eye size={16} />
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="usage-user-id">
-                          {t("usageScript.userId")}
-                        </Label>
-                        <Input
-                          id="usage-user-id"
-                          type="text"
-                          value={script.userId || ""}
-                          onChange={(e) =>
-                            setScript({ ...script, userId: e.target.value })
-                          }
-                          placeholder={t("usageScript.userIdPlaceholder")}
-                          autoComplete="off"
-                          className="border-white/10"
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 通用配置（始终显示） */}
-            <div className="grid gap-4 md:grid-cols-2 pt-4 border-t border-white/10">
-              {/* 超时时间 */}
-              <div className="space-y-2">
-                <Label htmlFor="usage-timeout">
-                  {t("usageScript.timeoutSeconds")}
-                </Label>
-                <Input
-                  id="usage-timeout"
-                  type="number"
-                  min={0}
-                  value={script.timeout ?? 10}
-                  onChange={(e) =>
-                    setScript({
-                      ...script,
-                      timeout: validateTimeout(e.target.value),
-                    })
-                  }
-                  onBlur={(e) =>
-                    setScript({
-                      ...script,
-                      timeout: validateTimeout(e.target.value),
-                    })
-                  }
-                  className="border-white/10"
-                />
-              </div>
-
-              {/* 自动查询间隔 */}
-              <div className="space-y-2">
-                <Label htmlFor="usage-interval">
-                  {t("usageScript.autoIntervalMinutes")}
-                </Label>
-                <Input
-                  id="usage-interval"
-                  type="number"
-                  min={0}
-                  max={1440}
-                  value={
-                    script.autoQueryInterval ?? script.autoIntervalMinutes ?? 0
-                  }
-                  onChange={(e) =>
-                    setScript({
-                      ...script,
-                      autoQueryInterval: validateAndClampInterval(
-                        e.target.value,
-                      ),
-                    })
-                  }
-                  onBlur={(e) =>
-                    setScript({
-                      ...script,
-                      autoQueryInterval: validateAndClampInterval(
-                        e.target.value,
-                      ),
-                    })
-                  }
-                  className="border-white/10"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* 提取器代码 */}
-          <div className="space-y-4 glass rounded-xl border border-white/10 p-6">
-            <div className="flex items-center justify-between">
-              <Label className="text-base font-medium">
-                {t("usageScript.extractorCode")}
-              </Label>
-              <div className="text-xs text-muted-foreground">
-                {t("usageScript.extractorHint")}
-              </div>
-            </div>
-            <JsonEditor
-              id="usage-code"
-              value={script.code || ""}
-              onChange={(value) => setScript({ ...script, code: value })}
-              height={480}
-              language="javascript"
-              showMinimap={false}
-            />
-          </div>
-
-          {/* 帮助信息 */}
-          <div className="glass rounded-xl border border-white/10 p-6 text-sm text-foreground/90">
-            <h4 className="font-medium mb-2">{t("usageScript.scriptHelp")}</h4>
-            <div className="space-y-3 text-xs">
-              <div>
-                <strong>{t("usageScript.configFormat")}</strong>
-                <pre className="mt-1 p-2 bg-black/20 text-foreground rounded border border-white/10 text-[10px] overflow-x-auto">
-                  {`({
+                <div className="glass rounded-xl border border-white/10 p-6 text-sm text-foreground/90">
+                  <h4 className="mb-2 font-medium">{t("usageScript.scriptHelp")}</h4>
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <strong>{t("usageScript.configFormat")}</strong>
+                      <pre className="mt-1 overflow-x-auto rounded border border-white/10 bg-black/20 p-2 text-[10px] text-foreground">
+                        {`({
   request: {
     url: "{{baseUrl}}/api/usage",
     method: "POST",
@@ -833,40 +836,47 @@ const UsageScriptModal: React.FC<UsageScriptModalProps> = ({
     };
   }
 })`}
-                </pre>
-              </div>
+                      </pre>
+                    </div>
 
-              <div>
-                <strong>{t("usageScript.extractorFormat")}</strong>
-                <ul className="mt-1 space-y-0.5 ml-2">
-                  <li>{t("usageScript.fieldIsValid")}</li>
-                  <li>{t("usageScript.fieldInvalidMessage")}</li>
-                  <li>{t("usageScript.fieldRemaining")}</li>
-                  <li>{t("usageScript.fieldUnit")}</li>
-                  <li>{t("usageScript.fieldPlanName")}</li>
-                  <li>{t("usageScript.fieldTotal")}</li>
-                  <li>{t("usageScript.fieldUsed")}</li>
-                  <li>{t("usageScript.fieldExtra")}</li>
-                </ul>
-              </div>
+                    <div>
+                      <strong>{t("usageScript.extractorFormat")}</strong>
+                      <ul className="ml-2 mt-1 space-y-0.5">
+                        <li>{t("usageScript.fieldIsValid")}</li>
+                        <li>{t("usageScript.fieldInvalidMessage")}</li>
+                        <li>{t("usageScript.fieldRemaining")}</li>
+                        <li>{t("usageScript.fieldUnit")}</li>
+                        <li>{t("usageScript.fieldPlanName")}</li>
+                        <li>{t("usageScript.fieldTotal")}</li>
+                        <li>{t("usageScript.fieldUsed")}</li>
+                        <li>{t("usageScript.fieldExtra")}</li>
+                      </ul>
+                    </div>
 
-              <div className="text-muted-foreground">
-                <strong>{t("usageScript.tips")}</strong>
-                <ul className="mt-1 space-y-0.5 ml-2">
-                  <li>
-                    {t("usageScript.tip1", {
-                      apiKey: "{{apiKey}}",
-                      baseUrl: "{{baseUrl}}",
-                    })}
-                  </li>
-                  <li>{t("usageScript.tip2")}</li>
-                  <li>{t("usageScript.tip3")}</li>
-                </ul>
+                    <div className="text-muted-foreground">
+                      <strong>{t("usageScript.tips")}</strong>
+                      <ul className="ml-2 mt-1 space-y-0.5">
+                        <li>
+                          {t("usageScript.tip1", {
+                            apiKey: "{{apiKey}}",
+                            baseUrl: "{{baseUrl}}",
+                          })}
+                        </li>
+                        <li>{t("usageScript.tip2")}</li>
+                        <li>{t("usageScript.tip3")}</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            )}
+          </DialogBody>
+
+          <DialogFooter className="items-stretch justify-between gap-3 sm:items-center">
+            {footer}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         isOpen={showUsageConfirm}
@@ -877,7 +887,7 @@ const UsageScriptModal: React.FC<UsageScriptModalProps> = ({
         onConfirm={() => void handleUsageConfirm()}
         onCancel={() => setShowUsageConfirm(false)}
       />
-    </FullScreenPanel>
+    </>
   );
 };
 

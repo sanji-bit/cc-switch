@@ -1163,7 +1163,7 @@ export function ProviderForm({
       <form
         id="provider-form"
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="space-y-6 glass rounded-xl p-6 border border-white/10"
+        className="space-y-6"
       >
         {!initialData && (
           <ProviderPresetSelector

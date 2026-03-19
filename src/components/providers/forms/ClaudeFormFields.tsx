@@ -200,80 +200,84 @@ export function ClaudeFormFields({
         />
       )}
 
-      {/* API 格式选择（仅非官方、非云服务商显示） */}
-      {shouldShowModelSelector && category !== "cloud_provider" && (
-        <div className="space-y-2">
-          <FormLabel htmlFor="apiFormat">
-            {t("providerForm.apiFormat", { defaultValue: "API 格式" })}
-          </FormLabel>
-          <Select value={apiFormat} onValueChange={onApiFormatChange}>
-            <SelectTrigger id="apiFormat" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="anthropic">
-                {t("providerForm.apiFormatAnthropic", {
-                  defaultValue: "Anthropic Messages (原生)",
-                })}
-              </SelectItem>
-              <SelectItem value="openai_chat">
-                {t("providerForm.apiFormatOpenAIChat", {
-                  defaultValue: "OpenAI Chat Completions (需转换)",
-                })}
-              </SelectItem>
-              <SelectItem value="openai_responses">
-                {t("providerForm.apiFormatOpenAIResponses", {
-                  defaultValue: "OpenAI Responses API (需转换)",
-                })}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            {t("providerForm.apiFormatHint", {
-              defaultValue: "选择供应商 API 的输入格式",
-            })}
-          </p>
-        </div>
-      )}
-
-      {/* 认证字段选择器 */}
       {shouldShowModelSelector && (
-        <div className="space-y-2">
-          <FormLabel>
-            {t("providerForm.authField", { defaultValue: "认证字段" })}
-          </FormLabel>
-          <Select
-            value={apiKeyField}
-            onValueChange={(v) => onApiKeyFieldChange(v as ClaudeApiKeyField)}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ANTHROPIC_AUTH_TOKEN">
-                {t("providerForm.authFieldAuthToken", {
-                  defaultValue: "ANTHROPIC_AUTH_TOKEN（默认）",
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {/* API 格式选择（仅非官方、非云服务商显示） */}
+          {shouldShowModelSelector && category !== "cloud_provider" && (
+            <div className="space-y-2">
+              <FormLabel htmlFor="apiFormat">
+                {t("providerForm.apiFormat", { defaultValue: "API 格式" })}
+              </FormLabel>
+              <Select value={apiFormat} onValueChange={onApiFormatChange}>
+                <SelectTrigger id="apiFormat" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="anthropic">
+                    {t("providerForm.apiFormatAnthropic", {
+                      defaultValue: "Anthropic Messages (原生)",
+                    })}
+                  </SelectItem>
+                  <SelectItem value="openai_chat">
+                    {t("providerForm.apiFormatOpenAIChat", {
+                      defaultValue: "OpenAI Chat Completions (需转换)",
+                    })}
+                  </SelectItem>
+                  <SelectItem value="openai_responses">
+                    {t("providerForm.apiFormatOpenAIResponses", {
+                      defaultValue: "OpenAI Responses API (需转换)",
+                    })}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {t("providerForm.apiFormatHint", {
+                  defaultValue: "选择供应商 API 的输入格式",
                 })}
-              </SelectItem>
-              <SelectItem value="ANTHROPIC_API_KEY">
-                {t("providerForm.authFieldApiKey", {
-                  defaultValue: "ANTHROPIC_API_KEY",
+              </p>
+            </div>
+          )}
+
+          {/* 认证字段选择器 */}
+          {shouldShowModelSelector && (
+            <div className="space-y-2">
+              <FormLabel>
+                {t("providerForm.authField", { defaultValue: "认证字段" })}
+              </FormLabel>
+              <Select
+                value={apiKeyField}
+                onValueChange={(v) => onApiKeyFieldChange(v as ClaudeApiKeyField)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ANTHROPIC_AUTH_TOKEN">
+                    {t("providerForm.authFieldAuthToken", {
+                      defaultValue: "ANTHROPIC_AUTH_TOKEN（默认）",
+                    })}
+                  </SelectItem>
+                  <SelectItem value="ANTHROPIC_API_KEY">
+                    {t("providerForm.authFieldApiKey", {
+                      defaultValue: "ANTHROPIC_API_KEY",
+                    })}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {t("providerForm.authFieldHint", {
+                  defaultValue: "选择写入配置的认证环境变量名",
                 })}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground">
-            {t("providerForm.authFieldHint", {
-              defaultValue: "选择写入配置的认证环境变量名",
-            })}
-          </p>
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {/* 模型选择器 */}
       {shouldShowModelSelector && (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {/* 主模型 */}
             <div className="space-y-2">
               <FormLabel htmlFor="claudeModel">

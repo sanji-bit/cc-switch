@@ -1,4 +1,3 @@
-import { ChevronRight, Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
   Tooltip,
@@ -37,13 +36,11 @@ export function SessionItem({
       type="button"
       onClick={() => onSelect(sessionKey)}
       className={cn(
-        "w-full text-left rounded-lg px-3 py-2.5 transition-all group",
-        isSelected
-          ? "bg-primary/10 border border-primary/30"
-          : "hover:bg-muted/60 border border-transparent",
+        "w-full rounded-lg px-3 py-2.5 text-left transition-colors",
+        isSelected ? "bg-primary/10" : "hover:bg-muted/60",
       )}
     >
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2">
         <Tooltip>
           <TooltipTrigger asChild>
             <span className="shrink-0">
@@ -58,18 +55,8 @@ export function SessionItem({
             {getProviderLabel(session.providerId, t)}
           </TooltipContent>
         </Tooltip>
-        <span className="text-sm font-medium truncate flex-1">{title}</span>
-        <ChevronRight
-          className={cn(
-            "size-4 text-muted-foreground/50 shrink-0 transition-transform",
-            isSelected && "text-primary rotate-90",
-          )}
-        />
-      </div>
-
-      <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-        <Clock className="size-3" />
-        <span>
+        <span className="min-w-0 flex-1 truncate text-sm font-medium">{title}</span>
+        <span className="shrink-0 text-[11px] text-muted-foreground/70">
           {lastActive ? formatRelativeTime(lastActive, t) : t("common.unknown")}
         </span>
       </div>

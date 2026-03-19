@@ -1,6 +1,8 @@
 import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
 import type { SkillSyncMethod } from "@/types";
 
 export interface SkillSyncMethodSettingsProps {
@@ -20,12 +22,12 @@ export function SkillSyncMethodSettings({
   return (
     <section className="space-y-2">
       <header className="space-y-1">
-        <h3 className="text-sm font-medium">{t("settings.skillSync.title")}</h3>
+        <h3 className="text-[16px] font-medium">{t("settings.skillSync.title")}</h3>
         <p className="text-xs text-muted-foreground">
           {t("settings.skillSync.description")}
         </p>
       </header>
-      <div className="inline-flex gap-1 rounded-md border border-border-default bg-background p-1">
+      <SegmentedControl>
         <SyncMethodButton
           active={displayValue === "symlink"}
           onClick={() => onChange("symlink")}
@@ -38,7 +40,7 @@ export function SkillSyncMethodSettings({
         >
           {t("settings.skillSync.copy")}
         </SyncMethodButton>
-      </div>
+      </SegmentedControl>
       {displayValue === "symlink" && (
         <p className="text-xs text-muted-foreground">
           {t("settings.skillSync.symlinkHint")}
@@ -60,19 +62,13 @@ function SyncMethodButton({
   children,
 }: SyncMethodButtonProps) {
   return (
-    <Button
+    <SegmentedControlItem
       type="button"
       onClick={onClick}
-      size="sm"
-      variant={active ? "default" : "ghost"}
-      className={cn(
-        "min-w-[96px]",
-        active
-          ? "shadow-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted",
-      )}
+      active={active}
+      className="min-w-[96px]"
     >
       {children}
-    </Button>
+    </SegmentedControlItem>
   );
 }

@@ -1,6 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import {
+  SegmentedControl,
+  SegmentedControlItem,
+} from "@/components/ui/segmented-control";
 
 type LanguageOption = "zh" | "en" | "ja";
 
@@ -15,12 +17,12 @@ export function LanguageSettings({ value, onChange }: LanguageSettingsProps) {
   return (
     <section className="space-y-2">
       <header className="space-y-1">
-        <h3 className="text-sm font-medium">{t("settings.language")}</h3>
+        <h3 className="text-[16px] font-medium">{t("settings.language")}</h3>
         <p className="text-xs text-muted-foreground">
           {t("settings.languageHint")}
         </p>
       </header>
-      <div className="inline-flex gap-1 rounded-md border border-border-default bg-background p-1">
+      <SegmentedControl>
         <LanguageButton active={value === "zh"} onClick={() => onChange("zh")}>
           {t("settings.languageOptionChinese")}
         </LanguageButton>
@@ -30,7 +32,7 @@ export function LanguageSettings({ value, onChange }: LanguageSettingsProps) {
         <LanguageButton active={value === "ja"} onClick={() => onChange("ja")}>
           {t("settings.languageOptionJapanese")}
         </LanguageButton>
-      </div>
+      </SegmentedControl>
     </section>
   );
 }
@@ -43,19 +45,13 @@ interface LanguageButtonProps {
 
 function LanguageButton({ active, onClick, children }: LanguageButtonProps) {
   return (
-    <Button
+    <SegmentedControlItem
       type="button"
       onClick={onClick}
-      size="sm"
-      variant={active ? "default" : "ghost"}
-      className={cn(
-        "min-w-[96px]",
-        active
-          ? "shadow-sm"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted",
-      )}
+      active={active}
+      className="min-w-[96px]"
     >
       {children}
-    </Button>
+    </SegmentedControlItem>
   );
 }

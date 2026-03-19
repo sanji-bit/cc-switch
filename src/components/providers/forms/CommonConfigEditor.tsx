@@ -1,8 +1,16 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Save, Download, Loader2 } from "lucide-react";
 import JsonEditor from "@/components/JsonEditor";
 
@@ -213,14 +221,48 @@ export function CommonConfigEditor({
         />
       </div>
 
-      <FullScreenPanel
-        isOpen={isModalOpen}
-        title={t("claudeConfig.editCommonConfigTitle", {
-          defaultValue: "编辑通用配置片段",
-        })}
-        onClose={onModalClose}
-        footer={
-          <>
+      <Dialog open={isModalOpen} onOpenChange={(nextOpen) => !nextOpen && onModalClose()}>
+        <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
+          <DialogHeader className="gap-4 pb-2">
+            <div className="flex items-start justify-between gap-4">
+              <DialogTitle className="pt-1 text-lg font-semibold">
+                {t("claudeConfig.editCommonConfigTitle", {
+                  defaultValue: "编辑通用配置片段",
+                })}
+              </DialogTitle>
+              <DialogCloseButton onClick={onModalClose} />
+            </div>
+          </DialogHeader>
+
+          <DialogBody>
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {t("claudeConfig.commonConfigHint", {
+                  defaultValue: "通用配置片段将合并到所有启用它的供应商配置中",
+                })}
+              </p>
+              <JsonEditor
+                value={commonConfigSnippet}
+                onChange={onCommonConfigSnippetChange}
+                placeholder={`{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://your-api-endpoint.com"
+  }
+}`}
+                darkMode={isDarkMode}
+                rows={16}
+                showValidation={true}
+                language="json"
+              />
+              {commonConfigError && (
+                <p className="text-sm text-red-500 dark:text-red-400">
+                  {commonConfigError}
+                </p>
+              )}
+            </div>
+          </DialogBody>
+
+          <DialogFooter>
             {onExtract && (
               <Button
                 type="button"
@@ -246,35 +288,9 @@ export function CommonConfigEditor({
               <Save className="w-4 h-4" />
               {t("common.save")}
             </Button>
-          </>
-        }
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {t("claudeConfig.commonConfigHint", {
-              defaultValue: "通用配置片段将合并到所有启用它的供应商配置中",
-            })}
-          </p>
-          <JsonEditor
-            value={commonConfigSnippet}
-            onChange={onCommonConfigSnippetChange}
-            placeholder={`{
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://your-api-endpoint.com"
-  }
-}`}
-            darkMode={isDarkMode}
-            rows={16}
-            showValidation={true}
-            language="json"
-          />
-          {commonConfigError && (
-            <p className="text-sm text-red-500 dark:text-red-400">
-              {commonConfigError}
-            </p>
-          )}
-        </div>
-      </FullScreenPanel>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

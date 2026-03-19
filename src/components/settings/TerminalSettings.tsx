@@ -87,7 +87,7 @@ export function TerminalSettings({ value, onChange }: TerminalSettingsProps) {
   return (
     <section className="space-y-2">
       <header className="space-y-1">
-        <h3 className="text-sm font-medium">{t("settings.terminal.title")}</h3>
+        <h3 className="text-[16px] font-medium">{t("settings.terminal.title")}</h3>
         <p className="text-xs text-muted-foreground">
           {t("settings.terminal.description")}
         </p>

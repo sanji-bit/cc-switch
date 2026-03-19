@@ -1,19 +1,15 @@
 import {
-  BarChart3,
-  Check,
+  ChartPie,
   Copy,
-  Edit,
   Loader2,
-  Minus,
-  Play,
-  Plus,
+  Pencil,
   Terminal,
-  TestTube2,
-  Trash2,
+  Trash,
   Zap,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { AppId } from "@/lib/api";
 
@@ -23,6 +19,7 @@ interface ProviderActionsProps {
   isInConfig?: boolean;
   isTesting?: boolean;
   isProxyTakeover?: boolean;
+  isHovered?: boolean;
   isOmo?: boolean;
   onSwitch: () => void;
   onEdit: () => void;
@@ -47,6 +44,7 @@ export function ProviderActions({
   isInConfig = false,
   isTesting,
   isProxyTakeover = false,
+  isHovered = false,
   isOmo = false,
   onSwitch,
   onEdit,
@@ -65,7 +63,12 @@ export function ProviderActions({
   onSetAsDefault,
 }: ProviderActionsProps) {
   const { t } = useTranslation();
-  const iconButtonClass = "h-8 w-8 p-1";
+  const iconButtonClass = cn(
+    "h-8 w-8 rounded-[8px] p-1 text-muted-foreground transition-colors",
+    isHovered
+      ? "opacity-100 hover:bg-muted/70 hover:text-foreground"
+      : "opacity-40",
+  );
 
   // 累加模式应用（OpenCode 非 OMO 和 OpenClaw）
   const isAdditiveMode =
@@ -100,131 +103,40 @@ export function ProviderActions({
     }
   };
 
-  const getMainButtonState = () => {
-    if (isOmo) {
-      if (isCurrent) {
-        return {
-          disabled: false,
-          variant: "secondary" as const,
-          className:
-            "bg-gray-200 text-muted-foreground hover:bg-gray-200 hover:text-muted-foreground dark:bg-gray-700 dark:hover:bg-gray-700",
-          icon: <Check className="h-4 w-4" />,
-          text: t("provider.inUse"),
-        };
-      }
-      return {
-        disabled: false,
-        variant: "default" as const,
-        className: "",
-        icon: <Play className="h-4 w-4" />,
-        text: t("provider.enable"),
-      };
-    }
-
-    // 累加模式（OpenCode 非 OMO / OpenClaw）
+  const getMainSwitchState = () => {
     if (isAdditiveMode) {
-      if (isInConfig) {
-        return {
-          disabled: isDefaultModel === true,
-          variant: "secondary" as const,
-          className: cn(
-            "bg-orange-100 text-orange-600 hover:bg-orange-200 dark:bg-orange-900/50 dark:text-orange-400 dark:hover:bg-orange-900/70",
-            isDefaultModel && "opacity-40 cursor-not-allowed",
-          ),
-          icon: <Minus className="h-4 w-4" />,
-          text: t("provider.removeFromConfig", { defaultValue: "移除" }),
-        };
-      }
       return {
-        disabled: false,
-        variant: "default" as const,
-        className:
-          "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700",
-        icon: <Plus className="h-4 w-4" />,
-        text: t("provider.addToConfig", { defaultValue: "添加" }),
+        checked: isInConfig,
+        disabled: isDefaultModel === true,
+        text: isInConfig
+          ? t("provider.inUse")
+          : t("provider.enable"),
       };
     }
 
     if (isFailoverMode) {
-      if (isInFailoverQueue) {
-        return {
-          disabled: false,
-          variant: "secondary" as const,
-          className:
-            "bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-400 dark:hover:bg-blue-900/70",
-          icon: <Check className="h-4 w-4" />,
-          text: t("failover.inQueue", { defaultValue: "已加入" }),
-        };
-      }
       return {
+        checked: isInFailoverQueue,
         disabled: false,
-        variant: "default" as const,
-        className:
-          "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
-        icon: <Plus className="h-4 w-4" />,
-        text: t("failover.addQueue", { defaultValue: "加入" }),
-      };
-    }
-
-    if (isCurrent) {
-      return {
-        disabled: true,
-        variant: "secondary" as const,
-        className:
-          "bg-gray-200 text-muted-foreground hover:bg-gray-200 hover:text-muted-foreground dark:bg-gray-700 dark:hover:bg-gray-700",
-        icon: <Check className="h-4 w-4" />,
-        text: t("provider.inUse"),
+        text: isInFailoverQueue
+          ? t("provider.inUse")
+          : t("provider.enable"),
       };
     }
 
     return {
+      checked: isCurrent,
       disabled: false,
-      variant: "default" as const,
-      className: isProxyTakeover
-        ? "bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700"
-        : "",
-      icon: <Play className="h-4 w-4" />,
-      text: t("provider.enable"),
+      text: isCurrent ? t("provider.inUse") : t("provider.enable"),
     };
   };
 
-  const buttonState = getMainButtonState();
+  const switchState = getMainSwitchState();
 
   const canDelete = isOmo || isAdditiveMode ? true : !isCurrent;
 
   return (
-    <div className="flex items-center gap-1.5">
-      {appId === "openclaw" && isInConfig && onSetAsDefault && (
-        <Button
-          size="sm"
-          variant={isDefaultModel ? "secondary" : "default"}
-          onClick={isDefaultModel ? undefined : onSetAsDefault}
-          disabled={isDefaultModel}
-          className={cn(
-            "w-fit px-2.5",
-            isDefaultModel
-              ? "bg-gray-200 text-muted-foreground dark:bg-gray-700 opacity-60 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
-          )}
-        >
-          <Zap className="h-4 w-4" />
-          {isDefaultModel
-            ? t("provider.isDefault", { defaultValue: "当前默认" })
-            : t("provider.setAsDefault", { defaultValue: "设为默认" })}
-        </Button>
-      )}
-
-      <Button
-        size="sm"
-        variant={buttonState.variant}
-        onClick={handleMainButtonClick}
-        disabled={buttonState.disabled}
-        className={cn("w-[4.5rem] px-2.5", buttonState.className)}
-      >
-        {buttonState.icon}
-        {buttonState.text}
-      </Button>
-
+    <div className="flex w-full items-center gap-3">
       <div className="flex items-center gap-1">
         <Button
           size="icon"
@@ -233,7 +145,7 @@ export function ProviderActions({
           title={t("common.edit")}
           className={iconButtonClass}
         >
-          <Edit className="h-4 w-4" />
+          <Pencil className="h-4 w-4" />
         </Button>
 
         <Button
@@ -258,7 +170,7 @@ export function ProviderActions({
             {isTesting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <TestTube2 className="h-4 w-4" />
+              <Zap className="h-4 w-4" />
             )}
           </Button>
         )}
@@ -270,7 +182,7 @@ export function ProviderActions({
           title={t("provider.configureUsage")}
           className={iconButtonClass}
         >
-          <BarChart3 className="h-4 w-4" />
+          <ChartPie className="h-4 w-4" />
         </Button>
 
         {onOpenTerminal && (
@@ -299,8 +211,37 @@ export function ProviderActions({
             !canDelete && "opacity-40 cursor-not-allowed text-muted-foreground",
           )}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash className="h-4 w-4" />
         </Button>
+      </div>
+
+      <div className="ml-auto flex items-center gap-2">
+        {appId === "openclaw" && isInConfig && onSetAsDefault && (
+          <Button
+            size="sm"
+            variant={isDefaultModel ? "secondary" : "default"}
+            onClick={isDefaultModel ? undefined : onSetAsDefault}
+            disabled={isDefaultModel}
+            className={cn(
+              "h-8 rounded-lg px-2.5 text-xs font-medium",
+              isDefaultModel
+                ? "bg-gray-200 text-muted-foreground opacity-60 cursor-not-allowed dark:bg-gray-700"
+                : "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
+            )}
+          >
+            <Zap className="h-3.5 w-3.5" />
+            {isDefaultModel
+              ? t("provider.isDefault", { defaultValue: "当前默认" })
+              : t("provider.setAsDefault", { defaultValue: "设为默认" })}
+          </Button>
+        )}
+
+        <Switch
+          checked={switchState.checked}
+          onCheckedChange={handleMainButtonClick}
+          disabled={switchState.disabled}
+          aria-label={switchState.text}
+        />
       </div>
     </div>
   );

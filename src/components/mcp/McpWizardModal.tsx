@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
+  DialogBody,
+  DialogCloseButton,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { McpServerSpec } from "@/types";
 
@@ -225,18 +227,17 @@ const McpWizardModal: React.FC<McpWizardModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent
-        className="max-w-2xl max-h-[90vh] flex flex-col"
-        zIndex="alert"
-      >
-        <DialogHeader className="space-y-3 border-b-0 bg-transparent pb-0">
-          <DialogTitle className="text-lg font-semibold">
-            {t("mcp.wizard.title")}
-          </DialogTitle>
+      <DialogContent variant="wizard" zIndex="alert">
+        <DialogHeader className="gap-4 pb-2">
+          <div className="flex items-start justify-between gap-4">
+            <DialogTitle className="pt-1 text-lg font-semibold">
+              {t("mcp.wizard.title")}
+            </DialogTitle>
+            <DialogCloseButton onClick={handleClose} />
+          </div>
         </DialogHeader>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <DialogBody className="space-y-4 py-2">
           {/* Hint */}
           <div className="rounded-lg border border-border-default bg-gray-100/50 dark:bg-gray-800/50 p-3">
             <p className="text-sm text-muted-foreground">
@@ -412,10 +413,9 @@ const McpWizardModal: React.FC<McpWizardModalProps> = ({
               </pre>
             </div>
           )}
-        </div>
+        </DialogBody>
 
-        {/* Footer */}
-        <DialogFooter className="flex gap-2 border-t-0 bg-transparent pt-2 sm:justify-end">
+        <DialogFooter>
           <Button variant="outline" onClick={handleClose}>
             {t("common.cancel")}
           </Button>

@@ -29,7 +29,7 @@ import {
 import { useModelPricing, useDeleteModelPricing } from "@/lib/query/usage";
 import { PricingEditModal } from "./PricingEditModal";
 import type { ModelPricing } from "@/types/usage";
-import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { proxyApi } from "@/lib/api/proxy";
 
@@ -422,7 +422,7 @@ export function PricingConfigPanel() {
                             title={t("common.delete")}
                             className="text-destructive hover:text-destructive"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>

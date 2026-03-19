@@ -2,10 +2,18 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Eye, EyeOff, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogBody,
+  DialogCloseButton,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { FullScreenPanel } from "@/components/common/FullScreenPanel";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ProviderIcon } from "@/components/ProviderIcon";
 import JsonEditor from "@/components/JsonEditor";
@@ -341,360 +349,375 @@ requires_openai_auth = true`;
   );
 
   return (
-    <FullScreenPanel
-      isOpen={isOpen}
-      title={
-        isEditMode
-          ? t("universalProvider.edit", { defaultValue: "编辑统一供应商" })
-          : t("universalProvider.add", { defaultValue: "添加统一供应商" })
-      }
-      onClose={onClose}
-      footer={footer}
-    >
-      <div className="space-y-6">
-        {/* 预设选择（仅新建模式） */}
-        {!isEditMode && (
-          <div className="space-y-3">
-            <Label>
-              {t("universalProvider.selectPreset", {
-                defaultValue: "选择预设类型",
-              })}
-            </Label>
-            <div className="flex flex-wrap gap-2">
-              {universalProviderPresets.map((preset) => (
-                <button
-                  key={preset.providerType}
-                  type="button"
-                  onClick={() => handlePresetSelect(preset)}
-                  className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                    selectedPreset?.providerType === preset.providerType
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-accent text-muted-foreground hover:bg-accent/80"
-                  }`}
-                >
-                  <ProviderIcon
-                    icon={preset.icon}
-                    name={preset.name}
-                    size={16}
-                  />
-                  {preset.name}
-                </button>
-              ))}
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <DialogContent variant="form" zIndex="alert">
+          <DialogHeader className="gap-4 pb-2">
+            <div className="flex items-start justify-between gap-4">
+              <DialogTitle className="pt-1 text-lg font-semibold">
+                {isEditMode
+                  ? t("universalProvider.edit", { defaultValue: "编辑统一供应商" })
+                  : t("universalProvider.add", { defaultValue: "添加统一供应商" })}
+              </DialogTitle>
+              <DialogCloseButton onClick={onClose} />
             </div>
-            {selectedPreset?.description && (
-              <p className="text-xs text-muted-foreground">
-                {selectedPreset.description}
-              </p>
-            )}
-          </div>
-        )}
+          </DialogHeader>
 
-        {/* 基本信息 */}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              {t("universalProvider.name", { defaultValue: "名称" })}
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder={t("universalProvider.namePlaceholder", {
-                defaultValue: "例如：我的 NewAPI",
-              })}
-            />
-          </div>
+          <DialogBody>
+            <div className="space-y-6">
+              {/* 预设选择（仅新建模式） */}
+              {!isEditMode && (
+                <div className="space-y-3">
+                  <Label>
+                    {t("universalProvider.selectPreset", {
+                      defaultValue: "选择预设类型",
+                    })}
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {universalProviderPresets.map((preset) => (
+                      <button
+                        key={preset.providerType}
+                        type="button"
+                        onClick={() => handlePresetSelect(preset)}
+                        className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                          selectedPreset?.providerType === preset.providerType
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-accent text-muted-foreground hover:bg-accent/80"
+                        }`}
+                      >
+                        <ProviderIcon
+                          icon={preset.icon}
+                          name={preset.name}
+                          size={16}
+                        />
+                        {preset.name}
+                      </button>
+                    ))}
+                  </div>
+                  {selectedPreset?.description && (
+                    <p className="text-xs text-muted-foreground">
+                      {selectedPreset.description}
+                    </p>
+                  )}
+                </div>
+              )}
 
-          <div className="space-y-2">
-            <Label htmlFor="baseUrl">
-              {t("universalProvider.baseUrl", { defaultValue: "API 地址" })}
-            </Label>
-            <Input
-              id="baseUrl"
-              value={baseUrl}
-              onChange={(e) => setBaseUrl(e.target.value)}
-              placeholder="https://api.example.com"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="apiKey">
-              {t("universalProvider.apiKey", { defaultValue: "API Key" })}
-            </Label>
-            <div className="relative">
-              <Input
-                id="apiKey"
-                type={showApiKey ? "text" : "password"}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="sk-..."
-                className="pr-10"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowApiKey(!showApiKey)}
-              >
-                {showApiKey ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="websiteUrl">
-              {t("universalProvider.websiteUrl", { defaultValue: "官网地址" })}
-            </Label>
-            <Input
-              id="websiteUrl"
-              value={websiteUrl}
-              onChange={(e) => setWebsiteUrl(e.target.value)}
-              placeholder={t("universalProvider.websiteUrlPlaceholder", {
-                defaultValue: "https://example.com（可选，用于在列表中显示）",
-              })}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="notes">
-              {t("universalProvider.notes", { defaultValue: "备注" })}
-            </Label>
-            <Input
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={t("universalProvider.notesPlaceholder", {
-                defaultValue: "可选：添加备注信息",
-              })}
-            />
-          </div>
-        </div>
-
-        {/* 应用启用 */}
-        <div className="space-y-3">
-          <Label>
-            {t("universalProvider.enabledApps", { defaultValue: "启用的应用" })}
-          </Label>
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between rounded-lg border p-3">
-              <div className="flex items-center gap-2">
-                <ProviderIcon icon="claude" name="Claude" size={20} />
-                <span className="font-medium">Claude Code</span>
-              </div>
-              <Switch
-                checked={claudeEnabled}
-                onCheckedChange={setClaudeEnabled}
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border p-3">
-              <div className="flex items-center gap-2">
-                <ProviderIcon icon="openai" name="Codex" size={20} />
-                <span className="font-medium">OpenAI Codex</span>
-              </div>
-              <Switch
-                checked={codexEnabled}
-                onCheckedChange={setCodexEnabled}
-              />
-            </div>
-            <div className="flex items-center justify-between rounded-lg border p-3">
-              <div className="flex items-center gap-2">
-                <ProviderIcon icon="gemini" name="Gemini" size={20} />
-                <span className="font-medium">Gemini CLI</span>
-              </div>
-              <Switch
-                checked={geminiEnabled}
-                onCheckedChange={setGeminiEnabled}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 模型配置 */}
-        <div className="space-y-4">
-          <Label>
-            {t("universalProvider.modelConfig", { defaultValue: "模型配置" })}
-          </Label>
-
-          {/* Claude 模型 */}
-          {claudeEnabled && (
-            <div className="space-y-3 rounded-lg border p-4">
-              <div className="flex items-center gap-2 font-medium">
-                <ProviderIcon icon="claude" name="Claude" size={16} />
-                Claude
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">
-                    {t("universalProvider.model", { defaultValue: "主模型" })}
+              {/* 基本信息 */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">
+                    {t("universalProvider.name", { defaultValue: "名称" })}
                   </Label>
                   <Input
-                    value={models.claude?.model || ""}
-                    onChange={(e) =>
-                      updateModel("claude", "model", e.target.value)
-                    }
-                    placeholder="claude-sonnet-4-20250514"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t("universalProvider.namePlaceholder", {
+                      defaultValue: "例如：我的 NewAPI",
+                    })}
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Haiku</Label>
-                  <Input
-                    value={models.claude?.haikuModel || ""}
-                    onChange={(e) =>
-                      updateModel("claude", "haikuModel", e.target.value)
-                    }
-                    placeholder="claude-haiku-4-20250514"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Sonnet</Label>
-                  <Input
-                    value={models.claude?.sonnetModel || ""}
-                    onChange={(e) =>
-                      updateModel("claude", "sonnetModel", e.target.value)
-                    }
-                    placeholder="claude-sonnet-4-20250514"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Opus</Label>
-                  <Input
-                    value={models.claude?.opusModel || ""}
-                    onChange={(e) =>
-                      updateModel("claude", "opusModel", e.target.value)
-                    }
-                    placeholder="claude-sonnet-4-20250514"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Codex 模型 */}
-          {codexEnabled && (
-            <div className="space-y-3 rounded-lg border p-4">
-              <div className="flex items-center gap-2 font-medium">
-                <ProviderIcon icon="openai" name="Codex" size={16} />
-                Codex
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <Label className="text-xs">
-                    {t("universalProvider.model", { defaultValue: "模型" })}
+                <div className="space-y-2">
+                  <Label htmlFor="baseUrl">
+                    {t("universalProvider.baseUrl", { defaultValue: "API 地址" })}
                   </Label>
                   <Input
-                    value={models.codex?.model || ""}
-                    onChange={(e) =>
-                      updateModel("codex", "model", e.target.value)
-                    }
-                    placeholder="gpt-5.4"
+                    id="baseUrl"
+                    value={baseUrl}
+                    onChange={(e) => setBaseUrl(e.target.value)}
+                    placeholder="https://api.example.com"
                   />
                 </div>
-                <div className="space-y-1">
-                  <Label className="text-xs">Reasoning Effort</Label>
-                  <Input
-                    value={models.codex?.reasoningEffort || ""}
-                    onChange={(e) =>
-                      updateModel("codex", "reasoningEffort", e.target.value)
-                    }
-                    placeholder="high"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Gemini 模型 */}
-          {geminiEnabled && (
-            <div className="space-y-3 rounded-lg border p-4">
-              <div className="flex items-center gap-2 font-medium">
-                <ProviderIcon icon="gemini" name="Gemini" size={16} />
-                Gemini
+                <div className="space-y-2">
+                  <Label htmlFor="apiKey">
+                    {t("universalProvider.apiKey", { defaultValue: "API Key" })}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="apiKey"
+                      type={showApiKey ? "text" : "password"}
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      placeholder="sk-..."
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="websiteUrl">
+                    {t("universalProvider.websiteUrl", {
+                      defaultValue: "官网地址",
+                    })}
+                  </Label>
+                  <Input
+                    id="websiteUrl"
+                    value={websiteUrl}
+                    onChange={(e) => setWebsiteUrl(e.target.value)}
+                    placeholder={t("universalProvider.websiteUrlPlaceholder", {
+                      defaultValue: "https://example.com（可选，用于在列表中显示）",
+                    })}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">
+                    {t("universalProvider.notes", { defaultValue: "备注" })}
+                  </Label>
+                  <Input
+                    id="notes"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder={t("universalProvider.notesPlaceholder", {
+                      defaultValue: "可选：添加备注信息",
+                    })}
+                  />
+                </div>
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">
-                  {t("universalProvider.model", { defaultValue: "模型" })}
+
+              {/* 应用启用 */}
+              <div className="space-y-3">
+                <Label>
+                  {t("universalProvider.enabledApps", {
+                    defaultValue: "启用的应用",
+                  })}
                 </Label>
-                <Input
-                  value={models.gemini?.model || ""}
-                  onChange={(e) =>
-                    updateModel("gemini", "model", e.target.value)
-                  }
-                  placeholder="gemini-2.5-pro"
-                />
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-2">
+                      <ProviderIcon icon="claude" name="Claude" size={20} />
+                      <span className="font-medium">Claude Code</span>
+                    </div>
+                    <Switch
+                      checked={claudeEnabled}
+                      onCheckedChange={setClaudeEnabled}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-2">
+                      <ProviderIcon icon="openai" name="Codex" size={20} />
+                      <span className="font-medium">OpenAI Codex</span>
+                    </div>
+                    <Switch
+                      checked={codexEnabled}
+                      onCheckedChange={setCodexEnabled}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between rounded-lg border p-3">
+                    <div className="flex items-center gap-2">
+                      <ProviderIcon icon="gemini" name="Gemini" size={20} />
+                      <span className="font-medium">Gemini CLI</span>
+                    </div>
+                    <Switch
+                      checked={geminiEnabled}
+                      onCheckedChange={setGeminiEnabled}
+                    />
+                  </div>
+                </div>
               </div>
+
+              {/* 模型配置 */}
+              <div className="space-y-4">
+                <Label>
+                  {t("universalProvider.modelConfig", {
+                    defaultValue: "模型配置",
+                  })}
+                </Label>
+
+                {/* Claude 模型 */}
+                {claudeEnabled && (
+                  <div className="space-y-3 rounded-lg border p-4">
+                    <div className="flex items-center gap-2 font-medium">
+                      <ProviderIcon icon="claude" name="Claude" size={16} />
+                      Claude
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs">
+                          {t("universalProvider.model", { defaultValue: "主模型" })}
+                        </Label>
+                        <Input
+                          value={models.claude?.model || ""}
+                          onChange={(e) =>
+                            updateModel("claude", "model", e.target.value)
+                          }
+                          placeholder="claude-sonnet-4-20250514"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Haiku</Label>
+                        <Input
+                          value={models.claude?.haikuModel || ""}
+                          onChange={(e) =>
+                            updateModel("claude", "haikuModel", e.target.value)
+                          }
+                          placeholder="claude-haiku-4-20250514"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Sonnet</Label>
+                        <Input
+                          value={models.claude?.sonnetModel || ""}
+                          onChange={(e) =>
+                            updateModel("claude", "sonnetModel", e.target.value)
+                          }
+                          placeholder="claude-sonnet-4-20250514"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Opus</Label>
+                        <Input
+                          value={models.claude?.opusModel || ""}
+                          onChange={(e) =>
+                            updateModel("claude", "opusModel", e.target.value)
+                          }
+                          placeholder="claude-sonnet-4-20250514"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Codex 模型 */}
+                {codexEnabled && (
+                  <div className="space-y-3 rounded-lg border p-4">
+                    <div className="flex items-center gap-2 font-medium">
+                      <ProviderIcon icon="openai" name="Codex" size={16} />
+                      Codex
+                    </div>
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="space-y-1">
+                        <Label className="text-xs">
+                          {t("universalProvider.model", { defaultValue: "模型" })}
+                        </Label>
+                        <Input
+                          value={models.codex?.model || ""}
+                          onChange={(e) =>
+                            updateModel("codex", "model", e.target.value)
+                          }
+                          placeholder="gpt-5.4"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-xs">Reasoning Effort</Label>
+                        <Input
+                          value={models.codex?.reasoningEffort || ""}
+                          onChange={(e) =>
+                            updateModel("codex", "reasoningEffort", e.target.value)
+                          }
+                          placeholder="high"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Gemini 模型 */}
+                {geminiEnabled && (
+                  <div className="space-y-3 rounded-lg border p-4">
+                    <div className="flex items-center gap-2 font-medium">
+                      <ProviderIcon icon="gemini" name="Gemini" size={16} />
+                      Gemini
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">
+                        {t("universalProvider.model", { defaultValue: "模型" })}
+                      </Label>
+                      <Input
+                        value={models.gemini?.model || ""}
+                        onChange={(e) =>
+                          updateModel("gemini", "model", e.target.value)
+                        }
+                        placeholder="gemini-2.5-pro"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 配置 JSON 预览 */}
+              {isEditMode && (claudeEnabled || codexEnabled || geminiEnabled) && (
+                <div className="space-y-4">
+                  <Label>
+                    {t("universalProvider.configJsonPreview", {
+                      defaultValue: "配置 JSON 预览",
+                    })}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {t("universalProvider.configJsonPreviewHint", {
+                      defaultValue:
+                        "以下是将要同步到各应用的配置内容（仅覆盖显示的字段，保留其他自定义配置）",
+                    })}
+                  </p>
+
+                  {/* Claude JSON */}
+                  {claudeConfigJson && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <ProviderIcon icon="claude" name="Claude" size={16} />
+                        Claude
+                      </div>
+                      <JsonEditor
+                        value={JSON.stringify(claudeConfigJson, null, 2)}
+                        onChange={() => {}}
+                        height={180}
+                      />
+                    </div>
+                  )}
+
+                  {/* Codex JSON */}
+                  {codexConfigJson && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <ProviderIcon icon="openai" name="Codex" size={16} />
+                        Codex
+                      </div>
+                      <JsonEditor
+                        value={JSON.stringify(codexConfigJson, null, 2)}
+                        onChange={() => {}}
+                        height={280}
+                      />
+                    </div>
+                  )}
+
+                  {/* Gemini JSON */}
+                  {geminiConfigJson && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm font-medium">
+                        <ProviderIcon icon="gemini" name="Gemini" size={16} />
+                        Gemini
+                      </div>
+                      <JsonEditor
+                        value={JSON.stringify(geminiConfigJson, null, 2)}
+                        onChange={() => {}}
+                        height={140}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </DialogBody>
 
-        {/* 配置 JSON 预览 */}
-        {isEditMode && (claudeEnabled || codexEnabled || geminiEnabled) && (
-          <div className="space-y-4">
-            <Label>
-              {t("universalProvider.configJsonPreview", {
-                defaultValue: "配置 JSON 预览",
-              })}
-            </Label>
-            <p className="text-xs text-muted-foreground">
-              {t("universalProvider.configJsonPreviewHint", {
-                defaultValue:
-                  "以下是将要同步到各应用的配置内容（仅覆盖显示的字段，保留其他自定义配置）",
-              })}
-            </p>
+          <DialogFooter>{footer}</DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-            {/* Claude JSON */}
-            {claudeConfigJson && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <ProviderIcon icon="claude" name="Claude" size={16} />
-                  Claude
-                </div>
-                <JsonEditor
-                  value={JSON.stringify(claudeConfigJson, null, 2)}
-                  onChange={() => {}}
-                  height={180}
-                />
-              </div>
-            )}
-
-            {/* Codex JSON */}
-            {codexConfigJson && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <ProviderIcon icon="openai" name="Codex" size={16} />
-                  Codex
-                </div>
-                <JsonEditor
-                  value={JSON.stringify(codexConfigJson, null, 2)}
-                  onChange={() => {}}
-                  height={280}
-                />
-              </div>
-            )}
-
-            {/* Gemini JSON */}
-            {geminiConfigJson && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <ProviderIcon icon="gemini" name="Gemini" size={16} />
-                  Gemini
-                </div>
-                <JsonEditor
-                  value={JSON.stringify(geminiConfigJson, null, 2)}
-                  onChange={() => {}}
-                  height={140}
-                />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* 保存并同步确认弹窗 */}
       <ConfirmDialog
         isOpen={syncConfirmOpen}
         title={t("universalProvider.syncConfirmTitle", {
@@ -713,6 +736,6 @@ requires_openai_auth = true`;
           setPendingProvider(null);
         }}
       />
-    </FullScreenPanel>
+    </>
   );
 }

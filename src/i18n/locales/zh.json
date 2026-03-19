@@ -76,6 +76,16 @@
     "enterEditMode": "进入编辑模式",
     "exitEditMode": "退出编辑模式"
   },
+  "navigation": {
+    "agents": "智能体",
+    "globalConfig": "全局配置",
+    "skills": "技能插件",
+    "mcp": "MCP 服务",
+    "preferences": "偏好设置",
+    "providers": "供应商",
+    "claudeCode": "Claude Code",
+    "geminiCli": "Gemini CLI"
+  },
   "provider": {
     "tabProvider": "供应商",
     "tabUniversal": "统一供应商",

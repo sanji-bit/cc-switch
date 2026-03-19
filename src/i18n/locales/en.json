@@ -76,6 +76,16 @@
     "enterEditMode": "Enter Edit Mode",
     "exitEditMode": "Exit Edit Mode"
   },
+  "navigation": {
+    "agents": "Agents",
+    "globalConfig": "Global Config",
+    "skills": "Skill Plugins",
+    "mcp": "MCP Services",
+    "preferences": "Preferences",
+    "providers": "Providers",
+    "claudeCode": "Claude Code",
+    "geminiCli": "Gemini CLI"
+  },
   "provider": {
     "tabProvider": "Provider",
     "tabUniversal": "Universal",
