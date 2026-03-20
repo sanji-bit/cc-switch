@@ -51,10 +51,10 @@ export function SessionTocSidebar({
                 "flex items-start gap-2",
               )}
             >
-              <span className="shrink-0 w-4 h-4 rounded-full bg-primary/10 text-primary text-[10px] flex items-center justify-center font-medium">
+              <span className="shrink-0 w-4 h-4 rounded-full bg-muted text-muted-foreground text-[10px] flex items-center justify-center font-medium">
                 {tocIndex + 1}
               </span>
-              <span className="line-clamp-2 leading-snug">{item.preview}</span>
+              <span className="block min-w-0 w-0 flex-1 truncate leading-snug">{item.preview}</span>
             </button>
           ))}
         </div>
@@ -124,7 +124,7 @@ export function SessionTocDialog({
                 <span className="shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-semibold">
                   {tocIndex + 1}
                 </span>
-                <span className="line-clamp-2 leading-relaxed pt-0.5">
+                <span className="block min-w-0 w-0 flex-1 truncate leading-relaxed pt-0.5">
                   {item.preview}
                 </span>
               </button>

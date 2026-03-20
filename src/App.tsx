@@ -1053,7 +1053,7 @@ function App() {
           </div>
         </aside>
 
-        <section className="flex min-w-0 flex-1 pt-4 pr-6 pb-0 pl-0">
+        <section className="flex min-w-0 flex-1 pt-0 pr-[28px] pb-0 pl-0">
           <div className="app-content-shell flex min-w-0 flex-1 flex-col overflow-hidden">
             <header
               className="app-page-header z-40"
@@ -1215,6 +1215,11 @@ function App() {
                             {item.key === "providers" && providerCount > 0 && (
                               <span className="ml-[6px] inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-foreground px-[6px] text-[12px] font-semibold leading-none text-background">
                                 {providerCount}
+                              </span>
+                            )}
+                            {item.key === "prompts" && promptCount > 0 && (
+                              <span className="ml-[6px] inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-foreground px-[6px] text-[12px] font-semibold leading-none text-background">
+                                {promptCount}
                               </span>
                             )}
                             {isActive && (

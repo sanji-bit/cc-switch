@@ -10,7 +10,7 @@ import {
   Trash2,
   MessageSquare,
   Clock,
-  FolderOpen,
+  Folder,
   X,
 } from "lucide-react";
 import {
@@ -23,6 +23,13 @@ import type { SessionMeta } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
@@ -71,7 +78,9 @@ export function SessionManagerPage({ appId }: { appId: string }) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const [search, setSearch] = useState("");
-  const providerFilter = appId as ProviderFilter;
+  const initialProviderFilter = appId as ProviderFilter;
+  const [providerFilter, setProviderFilter] =
+    useState<ProviderFilter>(initialProviderFilter);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
   // 使用 FlexSearch 全文搜索
@@ -79,6 +88,10 @@ export function SessionManagerPage({ appId }: { appId: string }) {
     sessions,
     providerFilter,
   });
+
+  useEffect(() => {
+    setProviderFilter(initialProviderFilter);
+  }, [initialProviderFilter]);
 
   const filteredSessions = useMemo(() => {
     return searchSessions(search);
@@ -204,86 +217,25 @@ export function SessionManagerPage({ appId }: { appId: string }) {
         <div className="flex-1 overflow-hidden flex flex-col gap-4">
           {/* 主内容区域 - 左右分栏 */}
           <Card className="flex-1 overflow-hidden">
-            <div className="grid h-full min-h-0 md:grid-cols-[320px_minmax(0,1fr)]">
+            <div className="grid h-full min-h-0 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
               {/* 左侧会话列表 */}
               <div className="flex min-h-0 flex-col border-r border-border/60">
-                <CardHeader className="py-2 px-3">
-                  {isSearchOpen ? (
-                    <div className="relative flex-1">
-                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                      <Input
-                        ref={searchInputRef}
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                        placeholder={t("sessionManager.searchPlaceholder")}
-                        className="h-8 pl-8 pr-8 text-sm"
-                        autoFocus
-                        onKeyDown={(e) => {
-                          if (e.key === "Escape") {
-                            setIsSearchOpen(false);
-                            setSearch("");
-                          }
-                        }}
-                        onBlur={() => {
-                          if (search.trim() === "") {
-                            setIsSearchOpen(false);
-                          }
-                        }}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 size-6"
-                        onClick={() => {
-                          setIsSearchOpen(false);
-                          setSearch("");
-                        }}
-                      >
-                        <X className="size-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-sm font-medium">
-                          {t("sessionManager.sessionList")}
+                <CardHeader className="px-4 py-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <CardTitle className="text-[16px] font-medium leading-none">
+                          {t("sessionManager.sessionList", {
+                            defaultValue: "会话列表",
+                          })}
+                          <span className="ml-1">({filteredSessions.length})</span>
                         </CardTitle>
-                        <Badge
-                          variant="secondary"
-                          className="border-0 bg-transparent px-0 py-0 text-xs shadow-none"
-                        >
-                          {filteredSessions.length}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="size-7"
-                              onClick={() => {
-                                setIsSearchOpen(true);
-                                setTimeout(
-                                  () => searchInputRef.current?.focus(),
-                                  0,
-                                );
-                              }}
-                            >
-                              <Search className="size-3.5" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {t("sessionManager.searchSessions")}
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7"
+                              className="size-8"
                               onClick={() => void refetch()}
                             >
                               <RefreshCw className="size-3.5" />
@@ -292,12 +244,56 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                           <TooltipContent>{t("common.refresh")}</TooltipContent>
                         </Tooltip>
                       </div>
+
+                      <Select
+                        value={providerFilter}
+                        onValueChange={(value) =>
+                          setProviderFilter(value as ProviderFilter)
+                        }
+                      >
+                        <SelectTrigger className="h-8 w-auto min-w-[132px] shrink-0 border-0 bg-transparent px-2 text-sm shadow-none gap-1.5 focus:border-0">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">
+                            {t("sessionManager.providerFilterAll", {
+                              defaultValue: "全部",
+                            })}
+                          </SelectItem>
+                          <SelectItem value="claude">Claude Code</SelectItem>
+                          <SelectItem value="codex">Codex</SelectItem>
+                          <SelectItem value="gemini">Gemini CLI</SelectItem>
+                          <SelectItem value="opencode">OpenCode</SelectItem>
+                          <SelectItem value="openclaw">OpenClaw</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  )}
+
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground/45" />
+                      <Input
+                        ref={searchInputRef}
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        placeholder={t("sessionManager.searchPlaceholder")}
+                        className="h-8 rounded-[8px] border-0 bg-muted/55 shadow-none pl-[30px] pr-9 text-sm placeholder:text-muted-foreground/45 transition-colors hover:bg-muted/70 focus-visible:bg-muted/70 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                      {search && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 size-6"
+                          onClick={() => setSearch("")}
+                        >
+                          <X className="size-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="flex-1 overflow-hidden p-0">
                   <ScrollArea className="h-full">
-                    <div className="p-2">
+                    <div className="px-4 pb-4 pt-0">
                       {isLoading ? (
                         <div className="flex items-center justify-center py-12">
                           <RefreshCw className="size-5 animate-spin text-muted-foreground" />
@@ -338,173 +334,185 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                 ref={detailRef}
               >
                 {!selectedSession ? (
-                <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground p-8">
-                  <MessageSquare className="size-12 mb-3 opacity-30" />
-                  <p className="text-sm">{t("sessionManager.selectSession")}</p>
-                </div>
-              ) : (
-                <>
+                  <div className="flex flex-1 flex-col items-center justify-center p-8 text-muted-foreground">
+                    <MessageSquare className="mb-3 size-12 opacity-30" />
+                    <p className="text-sm">{t("sessionManager.selectSession")}</p>
+                  </div>
+                ) : (
+                  <>
                   {/* 详情头部 */}
-                  <CardHeader className="py-3 px-4 shrink-0">
-                    <div className="flex items-start justify-between gap-4">
-                      {/* 左侧：会话信息 */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="shrink-0">
-                                <ProviderIcon
-                                  icon={getProviderIconName(
-                                    selectedSession.providerId,
-                                  )}
-                                  name={selectedSession.providerId}
-                                  size={20}
-                                />
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {getProviderLabel(selectedSession.providerId, t)}
-                            </TooltipContent>
-                          </Tooltip>
-                          <h2 className="text-base font-semibold truncate">
-                            {formatSessionTitle(selectedSession)}
-                          </h2>
-                        </div>
-
-                        {/* 元信息 */}
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Clock className="size-3" />
-                            <span>
-                              {formatTimestamp(
-                                selectedSession.lastActiveAt ??
-                                  selectedSession.createdAt,
-                              )}
-                            </span>
-                          </div>
-                          {selectedSession.projectDir && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    void handleCopy(
-                                      selectedSession.projectDir!,
-                                      t("sessionManager.projectDirCopied"),
-                                    )
-                                  }
-                                  className="flex items-center gap-1 hover:text-foreground transition-colors"
-                                >
-                                  <FolderOpen className="size-3" />
-                                  <span className="truncate max-w-[200px]">
-                                    {getBaseName(selectedSession.projectDir)}
-                                  </span>
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent
-                                side="bottom"
-                                className="max-w-xs"
-                              >
-                                <p className="font-mono text-xs break-all">
-                                  {selectedSession.projectDir}
-                                </p>
-                                <p className="text-muted-foreground mt-1">
-                                  {t("sessionManager.clickToCopyPath")}
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* 右侧：操作按钮组 */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        {isMac() && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                size="sm"
-                                className="gap-1.5"
-                                onClick={() => void handleResume()}
-                                disabled={!selectedSession.resumeCommand}
-                              >
-                                <Play className="size-3.5" />
-                                <span className="hidden sm:inline">
-                                  {t("sessionManager.resume", {
-                                    defaultValue: "恢复会话",
-                                  })}
-                                </span>
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              {selectedSession.resumeCommand
-                                ? t("sessionManager.resumeTooltip", {
-                                    defaultValue: "在终端中恢复此会话",
-                                  })
-                                : t("sessionManager.noResumeCommand", {
-                                    defaultValue: "此会话无法恢复",
-                                  })}
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
+                  <CardHeader className="shrink-0 p-4">
+                    <div className="w-full">
+                      <div className="flex items-start gap-4">
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="size-7 shrink-0 text-muted-foreground"
-                              onClick={() => setDeleteTarget(selectedSession)}
-                              disabled={
-                                !selectedSession.sourcePath ||
-                                deleteSessionMutation.isPending
-                              }
-                            >
-                              <Trash2 className="size-3.5" />
-                            </Button>
+                            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted/70">
+                              <ProviderIcon
+                                icon={getProviderIconName(selectedSession.providerId)}
+                                name={selectedSession.providerId}
+                                size={20}
+                              />
+                            </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            {deleteSessionMutation.isPending
-                              ? t("sessionManager.deleting", {
-                                  defaultValue: "删除中...",
-                                })
-                              : t("sessionManager.deleteTooltip", {
-                                  defaultValue: "永久删除此本地会话记录",
-                                })}
+                            {getProviderLabel(selectedSession.providerId, t)}
                           </TooltipContent>
                         </Tooltip>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0 flex-1">
+                              <h2 className="truncate text-[16px] font-semibold leading-none text-foreground">
+                                {formatSessionTitle(selectedSession)}
+                              </h2>
+                              <div className="mt-[6px] flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-muted-foreground">
+                                <div className="flex items-center gap-1.5">
+                                  <Clock className="size-3" />
+                                  <span>
+                                    {formatTimestamp(
+                                      selectedSession.lastActiveAt ??
+                                        selectedSession.createdAt,
+                                    )}
+                                  </span>
+                                </div>
+                                {selectedSession.projectDir && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          void handleCopy(
+                                            selectedSession.projectDir!,
+                                            t("sessionManager.projectDirCopied"),
+                                          )
+                                        }
+                                        className="flex min-w-0 items-center gap-1.5 transition-colors hover:text-foreground"
+                                      >
+                                        <Folder className="size-3 shrink-0" />
+                                        <span className="truncate">
+                                          {getBaseName(selectedSession.projectDir)}
+                                        </span>
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom" className="max-w-xs">
+                                      <p className="font-mono text-xs break-all">
+                                        {selectedSession.projectDir}
+                                      </p>
+                                      <p className="mt-1 text-muted-foreground">
+                                        {t("sessionManager.clickToCopyPath")}
+                                      </p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                <div className="flex items-center gap-1.5">
+                                  <MessageSquare className="size-3 shrink-0" />
+                                  <span>
+                                    {t("sessionManager.conversationHistory", {
+                                      defaultValue: "对话记录",
+                                    })}
+                                  </span>
+                                  <span>{messages.length}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex shrink-0 items-center gap-2">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="gap-1.5"
+                                    onClick={() => setDeleteTarget(selectedSession)}
+                                    disabled={
+                                      !selectedSession.sourcePath ||
+                                      deleteSessionMutation.isPending
+                                    }
+                                  >
+                                    <Trash2 className="size-3.5" />
+                                    <span>
+                                      {deleteSessionMutation.isPending
+                                        ? t("sessionManager.deleting", {
+                                            defaultValue: "删除中...",
+                                          })
+                                        : t("common.delete", {
+                                            defaultValue: "删除",
+                                          })}
+                                    </span>
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {deleteSessionMutation.isPending
+                                    ? t("sessionManager.deleting", {
+                                        defaultValue: "删除中...",
+                                      })
+                                    : t("sessionManager.deleteTooltip", {
+                                        defaultValue: "永久删除此本地会话记录",
+                                      })}
+                                </TooltipContent>
+                              </Tooltip>
+                              {selectedSession.resumeCommand && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="gap-1.5"
+                                      onClick={() =>
+                                        void handleCopy(
+                                          selectedSession.resumeCommand!,
+                                          t("sessionManager.resumeCommandCopied"),
+                                        )
+                                      }
+                                    >
+                                      <Copy className="size-3.5" />
+                                      <span>
+                                        {t("sessionManager.copyCommand", {
+                                          defaultValue: "复制命令",
+                                        })}
+                                      </span>
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {t("sessionManager.copyCommand", {
+                                      defaultValue: "复制命令",
+                                    })}
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                              {isMac() && (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      size="sm"
+                                      className="gap-1.5"
+                                      onClick={() => void handleResume()}
+                                      disabled={!selectedSession.resumeCommand}
+                                    >
+                                      <Play className="size-3.5" />
+                                      <span className="hidden sm:inline">
+                                        {t("sessionManager.resume", {
+                                          defaultValue: "恢复会话",
+                                        })}
+                                      </span>
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    {selectedSession.resumeCommand
+                                      ? t("sessionManager.resumeTooltip", {
+                                          defaultValue: "在终端中恢复此会话",
+                                        })
+                                      : t("sessionManager.noResumeCommand", {
+                                          defaultValue: "此会话无法恢复",
+                                        })}
+                                  </TooltipContent>
+                                </Tooltip>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-
-                    {/* 恢复命令预览 */}
-                    {selectedSession.resumeCommand && (
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="flex-1 rounded-md bg-muted/60 px-3 py-1.5 font-mono text-xs text-muted-foreground truncate">
-                          {selectedSession.resumeCommand}
-                        </div>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7 shrink-0"
-                              onClick={() =>
-                                void handleCopy(
-                                  selectedSession.resumeCommand!,
-                                  t("sessionManager.resumeCommandCopied"),
-                                )
-                              }
-                            >
-                              <Copy className="size-3.5" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            {t("sessionManager.copyCommand", {
-                              defaultValue: "复制命令",
-                            })}
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    )}
                   </CardHeader>
 
                   {/* 消息列表区域 */}
@@ -512,22 +520,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                     <div className="flex h-full min-w-0">
                       {/* 消息列表 */}
                       <ScrollArea className="flex-1 min-w-0">
-                        <div className="p-4 min-w-0">
-                          <div className="mb-3 flex items-center gap-2">
-                            <MessageSquare className="size-4 text-muted-foreground" />
-                            <span className="text-sm font-medium">
-                              {t("sessionManager.conversationHistory", {
-                                defaultValue: "对话记录",
-                              })}
-                            </span>
-                            <Badge
-                              variant="secondary"
-                              className="border-0 bg-transparent px-0 py-0 text-xs shadow-none"
-                            >
-                              {messages.length}
-                            </Badge>
-                          </div>
-
+                        <div className="min-w-0 px-4 py-4">
                           {isLoadingMessages ? (
                             <div className="flex items-center justify-center py-12">
                               <RefreshCw className="size-5 animate-spin text-muted-foreground" />
@@ -545,6 +538,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                                 <SessionMessageItem
                                   key={`${message.role}-${index}`}
                                   message={message}
+                                  providerId={selectedSession.providerId}
                                   index={index}
                                   isActive={activeMessageIndex === index}
                                   setRef={(el) => {

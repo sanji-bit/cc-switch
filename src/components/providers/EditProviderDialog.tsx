@@ -200,7 +200,7 @@ export function EditProviderDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent variant="form" zIndex="alert" className="max-w-[960px]">
-        <DialogHeader className="gap-4 pb-2">
+        <DialogHeader className="gap-4 px-6 pt-6 pb-0">
           <div className="flex items-start justify-between gap-4">
             <DialogTitle className="pt-1 text-lg font-semibold">
               {t("provider.editProvider")}

@@ -40,10 +40,10 @@ export function SessionItem({
         isSelected ? "bg-primary/10" : "hover:bg-muted/60",
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-[8px]">
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="shrink-0">
+            <span className="shrink-0 self-center">
               <ProviderIcon
                 icon={getProviderIconName(session.providerId)}
                 name={session.providerId}

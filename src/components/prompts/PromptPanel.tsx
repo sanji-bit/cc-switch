@@ -148,7 +148,7 @@ const PromptPanel = React.forwardRef<PromptPanelHandle, PromptPanelProps>(
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-4">
+            <div className="grid grid-cols-1 gap-4 min-[1232px]:grid-cols-2 min-[1648px]:grid-cols-3 min-[2064px]:grid-cols-4 min-[2480px]:grid-cols-5">
               {promptEntries.map(([id, prompt]) => (
                 <PromptListItem
                   key={id}

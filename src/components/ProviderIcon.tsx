@@ -61,7 +61,7 @@ export const ProviderIcon: React.FC<ProviderIconProps> = ({
     return (
       <span
         className={cn(
-          "inline-flex items-center justify-center flex-shrink-0",
+          "inline-flex items-center justify-center flex-shrink-0 align-middle leading-none [&>svg]:block [&>svg]:shrink-0",
           className,
         )}
         style={{ ...sizeStyle, color: effectiveColor }}

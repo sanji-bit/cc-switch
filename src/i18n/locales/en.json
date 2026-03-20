@@ -79,7 +79,7 @@
   "navigation": {
     "agents": "Agents",
     "globalConfig": "Global Config",
-    "skills": "Skill Plugins",
+    "skills": "Skills",
     "mcp": "MCP Services",
     "preferences": "Preferences",
     "providers": "Providers",

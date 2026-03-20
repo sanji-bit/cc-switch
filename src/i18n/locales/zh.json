@@ -79,7 +79,7 @@
   "navigation": {
     "agents": "智能体",
     "globalConfig": "全局配置",
-    "skills": "技能插件",
+    "skills": "技能",
     "mcp": "MCP 服务",
     "preferences": "偏好设置",
     "providers": "供应商",

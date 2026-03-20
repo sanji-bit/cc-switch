@@ -79,7 +79,7 @@
   "navigation": {
     "agents": "エージェント",
     "globalConfig": "グローバル設定",
-    "skills": "スキルプラグイン",
+    "skills": "スキル",
     "mcp": "MCP サービス",
     "preferences": "環境設定",
     "providers": "プロバイダー",
