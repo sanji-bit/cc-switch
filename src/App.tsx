@@ -954,9 +954,9 @@ function App() {
       )}
 
       <div className="flex flex-1 min-h-0">
-        <aside className="app-sidebar flex w-[272px] min-w-[272px] flex-col px-4 pb-4 pt-5">
+        <aside className="app-sidebar flex w-[272px] min-w-[272px] flex-col px-4 pb-4 pt-0">
           <div
-            className="flex items-center justify-between px-2 pt-[5px]"
+            className="flex items-center justify-between px-2 pt-[12px]"
             data-tauri-drag-region
             style={{ WebkitAppRegion: "drag", height: HEADER_HEIGHT } as any}
           >
