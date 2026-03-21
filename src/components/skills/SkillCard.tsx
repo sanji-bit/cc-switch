@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Download, Trash2, Loader2 } from "lucide-react";
+import { ArrowUpRight, Download, Trash2, Loader2 } from "lucide-react";
 import { settingsApi } from "@/lib/api";
 import type { DiscoverableSkill } from "@/lib/api/skills";
 
@@ -59,24 +59,23 @@ export function SkillCard({ skill, onInstall, onUninstall }: SkillCardProps) {
     skill.directory.trim().toLowerCase() !== skill.name.trim().toLowerCase();
 
   return (
-    <Card className="glass-card flex flex-col h-full transition-all duration-300 hover:shadow-lg group relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-      <CardHeader className="pb-3">
+    <Card className="group flex h-full flex-col overflow-hidden rounded-[16px] border-[0.5px] border-border/80 bg-card text-card-foreground shadow-[0_1px_2px_0_rgba(0,0,0,0.04)] transition-shadow duration-200 hover:shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)]">
+      <CardHeader className="px-4 py-4 pb-3">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="text-base font-semibold truncate">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="truncate text-base font-semibold leading-6">
               {skill.name}
             </CardTitle>
-            <div className="flex items-center gap-2 mt-1.5">
+            <div className="mt-1.5 flex items-center gap-2">
               {showDirectory && (
-                <CardDescription className="text-xs truncate">
+                <CardDescription className="truncate text-xs">
                   {skill.directory}
                 </CardDescription>
               )}
               {skill.repoOwner && skill.repoName && (
                 <Badge
                   variant="outline"
-                  className="shrink-0 text-[10px] px-1.5 py-0 h-4 border-border-default"
+                  className="h-4 shrink-0 border-border-default px-1.5 py-0 text-[10px]"
                 >
                   {skill.repoOwner}/{skill.repoName}
                 </Badge>
@@ -86,62 +85,65 @@ export function SkillCard({ skill, onInstall, onUninstall }: SkillCardProps) {
           {skill.installed && (
             <Badge
               variant="default"
-              className="shrink-0 bg-green-600/90 hover:bg-green-600 dark:bg-green-700/90 dark:hover:bg-green-700 text-white border-0"
+              className="shrink-0 border-0 bg-green-600/90 text-white hover:bg-green-600 dark:bg-green-700/90 dark:hover:bg-green-700"
             >
               {t("skills.installed")}
             </Badge>
           )}
         </div>
       </CardHeader>
-      <CardContent className="flex-1 pt-0">
-        <p className="text-sm text-muted-foreground/90 line-clamp-4 leading-relaxed">
+      <CardContent className="flex-1 px-4 pt-0 pb-4">
+        <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground/90">
           {skill.description || t("skills.noDescription")}
         </p>
       </CardContent>
-      <CardFooter className="flex gap-2 pt-3 border-t border-border/50 relative z-10">
-        {skill.readmeUrl && (
+      <CardFooter className="mt-auto flex items-center justify-between gap-3 border-t-[0.5px] border-border/50 px-4 pt-3 pb-3">
+        {skill.readmeUrl ? (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleOpenGithub}
             disabled={loading}
-            className="flex-1"
+            className="h-auto px-0 py-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
           >
-            <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
             {t("skills.view")}
-          </Button>
-        )}
-        {skill.installed ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleUninstall}
-            disabled={loading}
-            className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/50 dark:hover:text-red-300"
-          >
-            {loading ? (
-              <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <Trash2 className="h-3.5 w-3.5 mr-1.5" />
-            )}
-            {loading ? t("skills.uninstalling") : t("skills.uninstall")}
+            <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
           </Button>
         ) : (
-          <Button
-            variant="mcp"
-            size="sm"
-            onClick={handleInstall}
-            disabled={loading || !skill.repoOwner}
-            className="flex-1"
-          >
-            {loading ? (
-              <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-            ) : (
-              <Download className="h-3.5 w-3.5 mr-1.5" />
-            )}
-            {loading ? t("skills.installing") : t("skills.install")}
-          </Button>
+          <div />
         )}
+        <div className="flex shrink-0 items-center gap-2">
+          {skill.installed ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleUninstall}
+              disabled={loading}
+              className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-950/50 dark:hover:text-red-300"
+            >
+              {loading ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              {loading ? t("skills.uninstalling") : t("skills.uninstall")}
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleInstall}
+              disabled={loading || !skill.repoOwner}
+            >
+              {loading ? (
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="mr-1.5 h-3.5 w-3.5" />
+              )}
+              {loading ? t("skills.installing") : t("skills.install")}
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

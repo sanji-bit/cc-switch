@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Figma, Server } from "lucide-react";
+import { Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SharedAppEntityCard } from "@/components/common/SharedAppEntityCard";
 import {
   useAllMcpServers,
   useToggleMcpApp,
@@ -13,24 +14,17 @@ import type { McpServer } from "@/types";
 import type { AppId } from "@/lib/api/types";
 import McpFormModal from "./McpFormModal";
 import { ConfirmDialog } from "../ConfirmDialog";
-import { Pencil, Trash, ExternalLink } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { settingsApi } from "@/lib/api";
 import { mcpPresets } from "@/config/mcpPresets";
 import { toast } from "sonner";
 import { MCP_SKILLS_APP_IDS } from "@/config/appConfig";
 import { AppCountBar } from "@/components/common/AppCountBar";
 import { AppToggleGroup } from "@/components/common/AppToggleGroup";
-import { ProviderIcon } from "@/components/ProviderIcon";
-import { hasIcon } from "@/icons/extracted";
 
 interface UnifiedMcpPanelProps {
   onOpenChange: (open: boolean) => void;
 }
-
-type McpIconMatch =
-  | { kind: "provider"; icon: string }
-  | { kind: "figma" }
-  | { kind: "generic" };
 
 export interface UnifiedMcpPanelHandle {
   openAdd: () => void;
@@ -140,7 +134,8 @@ const UnifiedMcpPanel = React.forwardRef<
   return (
     <div className="px-6 flex flex-col flex-1 min-h-0 overflow-hidden">
       <AppCountBar
-        totalLabel={t("mcp.serverCount", { count: serverEntries.length })}
+        totalLabel="MCP Servers"
+        totalCount={serverEntries.length}
         counts={enabledCounts}
         appIds={MCP_SKILLS_APP_IDS}
       />
@@ -164,8 +159,8 @@ const UnifiedMcpPanel = React.forwardRef<
           </div>
         ) : (
           <TooltipProvider delayDuration={300}>
-            <div className="grid grid-cols-1 gap-4 min-[1232px]:grid-cols-2 min-[1648px]:grid-cols-3 min-[2064px]:grid-cols-4 min-[2480px]:grid-cols-5">
-              {serverEntries.map(([id, server], index) => (
+            <div className="grid grid-cols-1 gap-4 min-[960px]:grid-cols-2 min-[1280px]:grid-cols-3 min-[1600px]:grid-cols-4 min-[1920px]:grid-cols-5">
+              {serverEntries.map(([id, server]) => (
                 <UnifiedMcpListItem
                   key={id}
                   id={id}
@@ -173,7 +168,6 @@ const UnifiedMcpPanel = React.forwardRef<
                   onToggleApp={handleToggleApp}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
-                  isLast={index === serverEntries.length - 1}
                 />
               ))}
             </div>
@@ -218,7 +212,6 @@ interface UnifiedMcpListItemProps {
   onToggleApp: (serverId: string, app: AppId, enabled: boolean) => void;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
-  isLast?: boolean;
 }
 
 const UnifiedMcpListItem: React.FC<UnifiedMcpListItemProps> = ({
@@ -227,7 +220,6 @@ const UnifiedMcpListItem: React.FC<UnifiedMcpListItemProps> = ({
   onToggleApp,
   onEdit,
   onDelete,
-  isLast,
 }) => {
   const { t } = useTranslation();
   const name = server.name || id;
@@ -236,166 +228,61 @@ const UnifiedMcpListItem: React.FC<UnifiedMcpListItemProps> = ({
   const meta = mcpPresets.find((p) => p.id === id);
   const docsUrl = server.docs || meta?.docs;
   const homepageUrl = server.homepage || meta?.homepage;
+  const externalUrl = docsUrl || homepageUrl;
   const tags = server.tags || meta?.tags;
-  const iconMatch = useMemo(() => inferMcpIcon(id, server), [id, server]);
+  const resolvedDescription =
+    description || (tags && tags.length > 0 ? tags.join(", ") : "");
 
   const openDocs = async () => {
-    const url = docsUrl || homepageUrl;
-    if (!url) return;
+    if (!externalUrl) return;
     try {
-      await settingsApi.openExternal(url);
+      await settingsApi.openExternal(externalUrl);
     } catch {
       // ignore
     }
   };
 
   return (
-    <div
-      className="group flex h-full w-full flex-col overflow-hidden rounded-[24px] border border-border/80 bg-card text-card-foreground transition-shadow duration-200 hover:shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]"
-      data-last={isLast ? "true" : "false"}
-    >
-      <div className="flex items-center gap-4 px-4 py-4">
-        <div className="flex h-[72px] w-[72px] flex-shrink-0 items-center justify-center rounded-[16px] bg-muted/35">
-          {iconMatch.kind === "provider" ? (
-            <ProviderIcon
-              icon={iconMatch.icon}
-              name={name}
-              size={40}
-              showFallback={false}
-            />
-          ) : iconMatch.kind === "figma" ? (
-            <Figma className="h-10 w-10 text-foreground" />
-          ) : (
-            <Server size={40} className="text-muted-foreground" />
-          )}
-        </div>
-
-        <div className="flex min-w-0 flex-1 items-center">
-          <div className="flex w-full items-center justify-between gap-3">
-            <div className="flex min-w-0 flex-1 flex-col justify-center">
-              <div className="flex items-center gap-1.5">
-                <h3 className="truncate text-[18px] font-semibold leading-5 text-foreground">
-                  {name}
-                </h3>
-                {docsUrl && (
-                  <button
-                    type="button"
-                    onClick={openDocs}
-                    className="flex-shrink-0 text-muted-foreground/60 transition-colors hover:text-foreground"
-                    title={t("mcp.presets.docs")}
-                  >
-                    <ExternalLink size={12} />
-                  </button>
-                )}
-              </div>
-
-              {description ? (
-                <p
-                  className="mt-1.5 line-clamp-1 text-[15px] leading-5 text-muted-foreground"
-                  title={description}
-                >
-                  {description}
-                </p>
-              ) : tags && tags.length > 0 ? (
-                <p className="mt-1.5 line-clamp-1 text-[15px] leading-5 text-muted-foreground">
-                  {tags.join(", ")}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-auto px-4 pb-3">
-        <div className="flex items-center justify-between gap-3 border-t-[0.5px] border-border/50 pt-3">
-          <AppToggleGroup
-            apps={server.apps}
-            onToggle={(app, enabled) => onToggleApp(id, app, enabled)}
-            appIds={MCP_SKILLS_APP_IDS}
-            buttonClassName="h-8 w-8"
-          />
-
-          <div className="flex flex-shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => onEdit(id)}
-              title={t("common.edit")}
-            >
-              <Pencil size={14} />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
-              onClick={() => onDelete(id)}
-              title={t("common.delete")}
-            >
-              <Trash size={14} />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SharedAppEntityCard
+      title={name}
+      description={resolvedDescription}
+      descriptionTitle={resolvedDescription || undefined}
+      onOpenExternal={externalUrl ? openDocs : undefined}
+      externalLabel={t("mcp.presets.docs")}
+      footerLeft={
+        <AppToggleGroup
+          apps={server.apps}
+          onToggle={(app, enabled) => onToggleApp(id, app, enabled)}
+          appIds={MCP_SKILLS_APP_IDS}
+          buttonClassName="h-6 w-6 !rounded-[8px]"
+        />
+      }
+      footerActions={
+        <>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 rounded-[8px]"
+            onClick={() => onEdit(id)}
+            title={t("common.edit")}
+          >
+            <Pencil size={14} />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 rounded-[8px] hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
+            onClick={() => onDelete(id)}
+            title={t("common.delete")}
+          >
+            <Trash size={14} />
+          </Button>
+        </>
+      }
+    />
   );
 };
-
-function inferMcpIcon(id: string, server: McpServer): McpIconMatch {
-  const haystack = [
-    id,
-    server.name,
-    server.description,
-    server.homepage,
-    server.docs,
-    server.server?.command,
-    server.server?.url,
-    ...(server.server?.args || []),
-    ...(server.tags || []),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-
-  if (haystack.includes("figma")) {
-    return { kind: "figma" };
-  }
-
-  const aliasMap: Record<string, string> = {
-    anthropic: "anthropic",
-    aws: "aws",
-    azure: "azure",
-    baidu: "baidu",
-    cloudflare: "cloudflare",
-    claude: "claude",
-    github: "github",
-    google: "google",
-    openai: "openai",
-    opencode: "opencode",
-  };
-
-  for (const [keyword, icon] of Object.entries(aliasMap)) {
-    if (haystack.includes(keyword) && hasIcon(icon)) {
-      return { kind: "provider", icon };
-    }
-  }
-
-  for (const token of tokenizeForIconMatch(haystack)) {
-    if (hasIcon(token)) {
-      return { kind: "provider", icon: token };
-    }
-  }
-
-  return { kind: "generic" };
-}
-
-function tokenizeForIconMatch(value: string): string[] {
-  return value
-    .split(/[^a-z0-9]+/g)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
 
 export default UnifiedMcpPanel;

@@ -8,12 +8,16 @@ import {
   LayoutTemplate,
   Layers3,
   Palette,
+  Pencil,
   Search,
   SlidersHorizontal,
   Sparkles,
+  Trash,
 } from "lucide-react";
 import { ThemeSettings } from "@/components/settings/ThemeSettings";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { SharedAppEntityCard } from "@/components/common/SharedAppEntityCard";
+import { AppToggleGroup } from "@/components/common/AppToggleGroup";
 import { ProviderCard } from "@/components/providers/ProviderCard";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +103,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { AppId } from "@/lib/api";
+import { MCP_SKILLS_APP_IDS } from "@/config/appConfig";
 import { cn } from "@/lib/utils";
 import type { Provider } from "@/types";
 
@@ -146,6 +151,18 @@ type ProviderShowcaseItem = {
   isDefaultModel?: boolean;
 };
 
+type SharedCardShowcaseItem = {
+  key: string;
+  title: string;
+  description: string;
+  cardTitle: string;
+  cardDescription: string;
+  cardDescriptionTitle?: string;
+  apps: Record<AppId, boolean>;
+  hasExternalLink?: boolean;
+  footerActions?: React.ReactNode;
+};
+
 type ComponentDocGroup = {
   title: string;
   items: Array<{
@@ -168,7 +185,7 @@ type ColorTokenRow = {
 const buttonVariantRows: InventoryRow[] = [
   {
     component: "Button",
-    names: "default, outline, secondary, ghost, destructive, mcp, link",
+    names: "default, outline, secondary, ghost, destructive, link",
     sizes: "default 36px, sm 32px, lg 40px, icon 36x36",
     states: "hover, focus-visible, disabled",
     source: "src/components/ui/button.tsx",
@@ -651,6 +668,82 @@ const providerShowcases: ProviderShowcaseItem[] = [
   },
 ];
 
+const sharedCardShowcases: SharedCardShowcaseItem[] = [
+  {
+    key: "complete",
+    title: "完整态",
+    description: "标题、描述、外链、toggle 和双操作按钮都齐全。",
+    cardTitle: "Context7",
+    cardDescription: "最新文档搜索与代码示例检索，适合作为标准共享卡片展示。",
+    cardDescriptionTitle:
+      "最新文档搜索与代码示例检索，适合作为标准共享卡片展示。",
+    apps: {
+      claude: true,
+      codex: true,
+      gemini: false,
+      opencode: true,
+      openclaw: false,
+    },
+    hasExternalLink: true,
+    footerActions: (
+      <>
+        <Button type="button" variant="ghost" size="icon" className="h-6 w-6 rounded-[8px]">
+          <Pencil size={14} />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 rounded-[8px] hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
+        >
+          <Trash size={14} />
+        </Button>
+      </>
+    ),
+  },
+  {
+    key: "fallback",
+    title: "fallback 描述态",
+    description: "无真实描述时仍保留相同描述区高度，验证文案占位。",
+    cardTitle: "滴答清单",
+    cardDescription: "didatask/ticktick-mcp",
+    cardDescriptionTitle: "didatask/ticktick-mcp",
+    apps: {
+      claude: true,
+      codex: false,
+      gemini: true,
+      opencode: false,
+      openclaw: false,
+    },
+    hasExternalLink: true,
+    footerActions: (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 rounded-[8px] hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
+      >
+        <Trash size={14} />
+      </Button>
+    ),
+  },
+  {
+    key: "minimal",
+    title: "精简态",
+    description: "无外链且无右侧操作，只保留标题、描述与 app 切换。",
+    cardTitle: "Local Skill Pack",
+    cardDescription: "本地技能集合，验证稀疏布局下 header 与 footer 的平衡。",
+    cardDescriptionTitle: "本地技能集合，验证稀疏布局下 header 与 footer 的平衡。",
+    apps: {
+      claude: false,
+      codex: true,
+      gemini: false,
+      opencode: false,
+      openclaw: false,
+    },
+  },
+];
+
 const noop = () => {};
 
 export default function DesignPreviewPage() {
@@ -707,7 +800,6 @@ export default function DesignPreviewPage() {
                 <Button variant="secondary">Secondary</Button>
                 <Button variant="ghost">Ghost</Button>
                 <Button variant="destructive">Destructive</Button>
-                <Button variant="mcp">MCP</Button>
                 <Button variant="link">Link button</Button>
               </div>
             </DocCard>
@@ -738,7 +830,7 @@ export default function DesignPreviewPage() {
 
             <SpecGrid
               items={[
-                { label: "变体", value: "default / outline / secondary / ghost / destructive / mcp / link" },
+                { label: "变体", value: "default / outline / secondary / ghost / destructive / link" },
                 { label: "尺寸", value: "sm / default / lg / icon" },
                 { label: "交互", value: "hover / focus-visible / disabled" },
                 { label: "适用", value: "主操作、次操作、危险操作、纯文字链接" },
@@ -1526,6 +1618,41 @@ export default function DesignPreviewPage() {
                 </ShowcaseSection>
 
                 <ShowcaseSection
+                  icon={Sparkles}
+                  title="共享集成卡片"
+                  description="这里直接展示 MCP / Skills 共用的卡片壳层，方便回归标题、描述、toggle 与 hover action。"
+                >
+                  <div className="grid gap-4 xl:grid-cols-3">
+                    {sharedCardShowcases.map((item) => (
+                      <div key={item.key} className="space-y-2">
+                        <div className="px-1">
+                          <h3 className="text-sm font-semibold">{item.title}</h3>
+                          <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                            {item.description}
+                          </p>
+                        </div>
+                        <SharedAppEntityCard
+                          title={item.cardTitle}
+                          description={item.cardDescription}
+                          descriptionTitle={item.cardDescriptionTitle}
+                          onOpenExternal={item.hasExternalLink ? noop : undefined}
+                          externalLabel="Docs"
+                          footerLeft={
+                            <AppToggleGroup
+                              apps={item.apps}
+                              onToggle={noop}
+                              appIds={MCP_SKILLS_APP_IDS}
+                              buttonClassName="h-6 w-6 !rounded-[8px]"
+                            />
+                          }
+                          footerActions={item.footerActions}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </ShowcaseSection>
+
+                <ShowcaseSection
                   icon={ChevronRight}
                   title="Settings 风格片段"
                   description="不整页嵌套 SettingsPage，而是挑最能反映风格的片段来预览。"
@@ -1574,8 +1701,15 @@ export default function DesignPreviewPage() {
         >
           <DialogContent variant="default">
             <DialogHeader>
-              <DialogTitle>Default dialog</DialogTitle>
-              <DialogDescription>用于轻量信息编辑或展示。</DialogDescription>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <DialogTitle>Default dialog</DialogTitle>
+                  <DialogDescription className="mt-2">
+                    用于轻量信息编辑或展示。
+                  </DialogDescription>
+                </div>
+                <DialogCloseButton onClick={() => setDialogVariant(null)} />
+              </div>
             </DialogHeader>
             <DialogBody className="space-y-4">
               <Input defaultValue="https://api.example.com/v1" />
@@ -1596,8 +1730,15 @@ export default function DesignPreviewPage() {
         >
           <DialogContent variant="form">
             <DialogHeader>
-              <DialogTitle>Form dialog</DialogTitle>
-              <DialogDescription>更宽的弹窗，适合表单编辑或配置面板。</DialogDescription>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <DialogTitle>Form dialog</DialogTitle>
+                  <DialogDescription className="mt-2">
+                    更宽的弹窗，适合表单编辑或配置面板。
+                  </DialogDescription>
+                </div>
+                <DialogCloseButton onClick={() => setDialogVariant(null)} />
+              </div>
             </DialogHeader>
             <DialogBody className="space-y-5">
               <div className="grid gap-4 md:grid-cols-2">
@@ -1639,8 +1780,15 @@ export default function DesignPreviewPage() {
         >
           <DialogContent variant="wizard">
             <DialogHeader>
-              <DialogTitle>Wizard dialog</DialogTitle>
-              <DialogDescription>适合多步骤引导、导入向导或初始化流程。</DialogDescription>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <DialogTitle>Wizard dialog</DialogTitle>
+                  <DialogDescription className="mt-2">
+                    适合多步骤引导、导入向导或初始化流程。
+                  </DialogDescription>
+                </div>
+                <DialogCloseButton onClick={() => setDialogVariant(null)} />
+              </div>
             </DialogHeader>
             <DialogBody className="space-y-4">
               <div className="grid gap-3 md:grid-cols-3">

@@ -31,8 +31,8 @@ export const AppToggleGroup: React.FC<AppToggleGroupProps> = ({
               <button
                 type="button"
                 onClick={() => onToggle(app, !enabled)}
-                className={`${buttonClassName} rounded-lg flex items-center justify-center transition-all ${
-                  enabled ? activeClass : "opacity-35 hover:opacity-70"
+                className={`${buttonClassName} rounded-[8px] flex items-center justify-center transition-all ${
+                  enabled ? activeClass : "opacity-30 hover:opacity-70"
                 }`}
               >
                 {icon}

@@ -23,8 +23,6 @@ const buttonVariants = cva(
         // 幽灵按钮（对应旧版 ghost）
         ghost:
           "text-muted-foreground hover:text-foreground hover:bg-muted/70",
-        // MCP 专属按钮：祖母绿
-        mcp: "bg-emerald-500 text-white shadow-sm hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700",
         // 链接按钮
         link: "text-blue-500 underline-offset-4 hover:underline dark:text-blue-400",
       },

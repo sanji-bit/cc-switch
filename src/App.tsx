@@ -15,10 +15,7 @@ import {
   Download,
   FolderArchive,
   Search,
-  FolderOpen,
-  KeyRound,
-  Shield,
-  Cpu,
+  ChevronLeft,
 } from "lucide-react";
 import type { Provider, VisibleApps } from "@/types";
 import type { EnvConflict } from "@/types/env";
@@ -980,7 +977,7 @@ function App() {
             style={{ WebkitAppRegion: "drag", height: HEADER_HEIGHT } as any}
           >
             <a
-              href="https://github.com/farion1231/cc-switch"
+              href="https://github.com/sanji-bit/cc-switch"
               target="_blank"
               rel="noreferrer"
               className={cn(
@@ -1085,7 +1082,19 @@ function App() {
                   className="flex min-w-0 items-center gap-3"
                   style={{ WebkitAppRegion: "no-drag" } as any}
                 >
-                  <div className="min-w-0">
+                  {currentView === "skillsDiscovery" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setCurrentView("skills")}
+                      title={t("common.back")}
+                      aria-label={t("common.back")}
+                      className="h-9 w-9 shrink-0"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <div className="min-w-0 items-center gap-1.5">
                     <h1 className="truncate text-lg font-semibold tracking-tight">
                       {currentView === "skills" || currentView === "skillsDiscovery"
                         ? t("navigation.skills")
@@ -1138,7 +1147,7 @@ function App() {
                   )}
                   <div
                     ref={toolbarRef}
-                    className="flex min-w-0 items-center justify-end gap-2 overflow-x-auto md:flex-nowrap"
+                    className="flex min-w-0 flex-wrap items-center justify-end gap-2 overflow-visible md:flex-nowrap"
                     style={{ WebkitAppRegion: "no-drag" } as any}
                   >
                     {currentView === "prompts" && promptCount > 0 && (
