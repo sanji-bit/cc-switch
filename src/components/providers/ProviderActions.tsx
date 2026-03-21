@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   ChartPie,
   Copy,
@@ -10,6 +11,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { AppId } from "@/lib/api";
 
@@ -137,83 +144,70 @@ export function ProviderActions({
 
   return (
     <div className="flex w-full items-center gap-3">
-      <div className="flex items-center gap-1">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onEdit}
-          title={t("common.edit")}
-          className={iconButtonClass}
-        >
-          <Pencil className="h-4 w-4" />
-        </Button>
-
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onDuplicate}
-          title={t("provider.duplicate")}
-          className={iconButtonClass}
-        >
-          <Copy className="h-4 w-4" />
-        </Button>
-
-        {onTest && (
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onTest}
-            disabled={isTesting}
-            title={t("modelTest.testProvider", "测试模型")}
+      <TooltipProvider>
+        <div className="flex items-center gap-1">
+          <ActionTooltipButton
+            label={t("common.edit")}
+            icon={<Pencil className="h-4 w-4" />}
+            onClick={onEdit}
             className={iconButtonClass}
-          >
-            {isTesting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Zap className="h-4 w-4" />
-            )}
-          </Button>
-        )}
+          />
 
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={onConfigureUsage}
-          title={t("provider.configureUsage")}
-          className={iconButtonClass}
-        >
-          <ChartPie className="h-4 w-4" />
-        </Button>
+          <ActionTooltipButton
+            label={t("provider.duplicate")}
+            icon={<Copy className="h-4 w-4" />}
+            onClick={onDuplicate}
+            className={iconButtonClass}
+          />
 
-        {onOpenTerminal && (
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={onOpenTerminal}
-            title={t("provider.openTerminal", "打开终端")}
+          {onTest && (
+            <ActionTooltipButton
+              label={t("modelTest.testProvider", "测试模型")}
+              icon={
+                isTesting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Zap className="h-4 w-4" />
+                )
+              }
+              onClick={onTest}
+              disabled={isTesting}
+              className={iconButtonClass}
+            />
+          )}
+
+          <ActionTooltipButton
+            label={t("provider.configureUsage")}
+            icon={<ChartPie className="h-4 w-4" />}
+            onClick={onConfigureUsage}
+            className={iconButtonClass}
+          />
+
+          {onOpenTerminal && (
+            <ActionTooltipButton
+              label={t("provider.openTerminal", "打开终端")}
+              icon={<Terminal className="h-4 w-4" />}
+              onClick={onOpenTerminal}
+              className={cn(
+                iconButtonClass,
+                "hover:text-emerald-600 dark:hover:text-emerald-400",
+              )}
+            />
+          )}
+
+          <ActionTooltipButton
+            label={t("common.delete")}
+            icon={<Trash className="h-4 w-4" />}
+            onClick={canDelete ? onDelete : undefined}
+            disabled={!canDelete}
             className={cn(
               iconButtonClass,
-              "hover:text-emerald-600 dark:hover:text-emerald-400",
+              canDelete && "hover:text-red-500 dark:hover:text-red-400",
+              !canDelete && "opacity-40 cursor-not-allowed text-muted-foreground",
             )}
-          >
-            <Terminal className="h-4 w-4" />
-          </Button>
-        )}
-
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={canDelete ? onDelete : undefined}
-          title={t("common.delete")}
-          className={cn(
-            iconButtonClass,
-            canDelete && "hover:text-red-500 dark:hover:text-red-400",
-            !canDelete && "opacity-40 cursor-not-allowed text-muted-foreground",
-          )}
-        >
-          <Trash className="h-4 w-4" />
-        </Button>
-      </div>
+          />
+        </div>
+      </TooltipProvider>
 
       <div className="ml-auto flex items-center gap-2">
         {appId === "openclaw" && isInConfig && onSetAsDefault && (
@@ -244,5 +238,41 @@ export function ProviderActions({
         />
       </div>
     </div>
+  );
+}
+
+interface ActionTooltipButtonProps {
+  label: string;
+  icon: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+}
+
+function ActionTooltipButton({
+  label,
+  icon,
+  onClick,
+  disabled = false,
+  className,
+}: ActionTooltipButtonProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={onClick}
+            disabled={disabled}
+            aria-label={label}
+            className={className}
+          >
+            {icon}
+          </Button>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent side="top">{label}</TooltipContent>
+    </Tooltip>
   );
 }

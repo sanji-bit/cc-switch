@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "CC Switch",
+    "title": "睿狐 CC Switch",
     "description": "Claude Code・Codex・Gemini CLI のためのオールインワンアシスタント"
   },
   "common": {
@@ -83,6 +83,8 @@
     "mcp": "MCP サービス",
     "preferences": "環境設定",
     "providers": "プロバイダー",
+    "prompts": "プロンプト",
+    "sessions": "セッション",
     "claudeCode": "Claude Code",
     "geminiCli": "Gemini CLI"
   },

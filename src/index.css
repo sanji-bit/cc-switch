@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-sonner-toast] {
+  padding: 8px !important;
+  border: 0 !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  color: hsl(142 72% 32%) !important;
+}
+
+.dark [data-sonner-toast][data-type="success"] {
+  color: hsl(142 70% 62%) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: inherit !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-description] {
+  color: color-mix(in srgb, currentColor 80%, transparent) !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 98%;
@@ -269,8 +290,12 @@ input[type="password"]::-ms-clear {
 }
 
 .app-nav-item:hover {
-  background: hsl(var(--muted) / 0.8);
+  background: rgb(0 0 0 / 0.05);
   color: hsl(var(--foreground));
+}
+
+.dark .app-nav-item:hover {
+  background: rgb(255 255 255 / 0.05);
 }
 
 .app-nav-item[data-active="true"] {

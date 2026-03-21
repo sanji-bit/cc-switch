@@ -73,7 +73,7 @@ export function AppSwitcher({
                 : "h-8 px-3 justify-center",
               appIsHighlighted
                 ? "bg-background text-foreground shadow-sm ring-1 ring-border/80"
-                : "text-muted-foreground hover:text-foreground hover:bg-background/60",
+                : "text-muted-foreground hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5",
             )}
           >
             <ProviderIcon

@@ -37,10 +37,10 @@ export function SegmentedControlItem({
       size="sm"
       variant="ghost"
       className={cn(
-        "rounded-[8px] border-0 bg-transparent shadow-none transition-all",
+        "cursor-pointer rounded-[8px] border-0 bg-transparent shadow-none transition-all",
         active
-          ? "bg-background text-foreground shadow-sm"
-          : "text-muted-foreground hover:bg-background/80 hover:text-foreground",
+          ? "bg-card text-foreground shadow-sm hover:bg-card hover:text-foreground/80"
+          : "text-muted-foreground hover:bg-black/5 hover:text-foreground dark:hover:bg-white/5 dark:hover:text-foreground",
         className,
       )}
       {...props}

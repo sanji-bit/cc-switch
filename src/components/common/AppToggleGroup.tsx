@@ -11,12 +11,14 @@ interface AppToggleGroupProps {
   apps: Record<AppId, boolean>;
   onToggle: (app: AppId, enabled: boolean) => void;
   appIds?: AppId[];
+  buttonClassName?: string;
 }
 
 export const AppToggleGroup: React.FC<AppToggleGroupProps> = ({
   apps,
   onToggle,
   appIds = APP_IDS,
+  buttonClassName = "w-7 h-7",
 }) => {
   return (
     <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -29,7 +31,7 @@ export const AppToggleGroup: React.FC<AppToggleGroupProps> = ({
               <button
                 type="button"
                 onClick={() => onToggle(app, !enabled)}
-                className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${
+                className={`${buttonClassName} rounded-lg flex items-center justify-center transition-all ${
                   enabled ? activeClass : "opacity-35 hover:opacity-70"
                 }`}
               >

@@ -24,7 +24,6 @@ import { toast } from "sonner";
 import { MCP_SKILLS_APP_IDS } from "@/config/appConfig";
 import { AppCountBar } from "@/components/common/AppCountBar";
 import { AppToggleGroup } from "@/components/common/AppToggleGroup";
-import { ListItemRow } from "@/components/common/ListItemRow";
 import {
   Dialog,
   DialogContent,
@@ -276,7 +275,7 @@ const UnifiedSkillsPanel = React.forwardRef<
           </div>
         ) : (
           <TooltipProvider delayDuration={300}>
-            <div className="rounded-xl border border-border-default overflow-hidden">
+            <div className="grid grid-cols-1 gap-4 min-[1232px]:grid-cols-2 min-[1648px]:grid-cols-3 min-[2064px]:grid-cols-4 min-[2480px]:grid-cols-5">
               {skills.map((skill, index) => (
                 <InstalledSkillListItem
                   key={skill.id}
@@ -360,54 +359,74 @@ const InstalledSkillListItem: React.FC<InstalledSkillListItemProps> = ({
   }, [skill.repoOwner, skill.repoName, t]);
 
   return (
-    <ListItemRow isLast={isLast}>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium text-sm text-foreground truncate">
-            {skill.name}
-          </span>
-          {skill.readmeUrl && (
-            <button
-              type="button"
-              onClick={openDocs}
-              className="text-muted-foreground/60 hover:text-foreground flex-shrink-0"
-            >
-              <ExternalLink size={12} />
-            </button>
-          )}
-          <span className="text-xs text-muted-foreground/50 flex-shrink-0">
-            {sourceLabel}
-          </span>
+    <div
+      className="group flex h-full w-full flex-col overflow-hidden rounded-[24px] border border-border/80 bg-card text-card-foreground transition-shadow duration-200 hover:shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]"
+      data-last={isLast ? "true" : "false"}
+    >
+      <div className="flex items-center gap-4 px-4 py-4">
+        <div className="flex h-[72px] w-[72px] flex-shrink-0 items-center justify-center rounded-[16px] bg-muted/35">
+          <Sparkles className="h-10 w-10 text-muted-foreground" />
         </div>
-        {skill.description && (
-          <p
-            className="text-xs text-muted-foreground truncate"
-            title={skill.description}
-          >
-            {skill.description}
-          </p>
-        )}
+
+        <div className="flex min-w-0 flex-1 items-center">
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 flex-col justify-center">
+              <div className="flex items-center gap-1.5">
+                <h3 className="truncate text-[18px] font-semibold leading-5 text-foreground">
+                  {skill.name}
+                </h3>
+                {skill.readmeUrl && (
+                  <button
+                    type="button"
+                    onClick={openDocs}
+                    className="flex-shrink-0 text-muted-foreground/60 transition-colors hover:text-foreground"
+                  >
+                    <ExternalLink size={12} />
+                  </button>
+                )}
+              </div>
+
+              {skill.description ? (
+                <p
+                  className="mt-1.5 line-clamp-1 text-[15px] leading-5 text-muted-foreground"
+                  title={skill.description}
+                >
+                  {skill.description}
+                </p>
+              ) : (
+                <p className="mt-1.5 line-clamp-1 text-[15px] leading-5 text-muted-foreground">
+                  {sourceLabel}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <AppToggleGroup
-        apps={skill.apps}
-        onToggle={(app, enabled) => onToggleApp(skill.id, app, enabled)}
-        appIds={MCP_SKILLS_APP_IDS}
-      />
+      <div className="mt-auto px-4 pb-3">
+        <div className="flex items-center justify-between gap-3 border-t-[0.5px] border-border/50 pt-3">
+          <AppToggleGroup
+            apps={skill.apps}
+            onToggle={(app, enabled) => onToggleApp(skill.id, app, enabled)}
+            appIds={MCP_SKILLS_APP_IDS}
+            buttonClassName="h-8 w-8"
+          />
 
-      <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="h-7 w-7 hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
-          onClick={onUninstall}
-          title={t("skills.uninstall")}
-        >
-          <Trash2 size={14} />
-        </Button>
+          <div className="flex flex-shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
+              onClick={onUninstall}
+              title={t("skills.uninstall")}
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
+        </div>
       </div>
-    </ListItemRow>
+    </div>
   );
 };
 

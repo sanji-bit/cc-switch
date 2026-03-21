@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "CC Switch",
+    "title": "Ruifu CC Switch",
     "description": "All-in-One Assistant for Claude Code, Codex & Gemini CLI"
   },
   "common": {
@@ -83,6 +83,8 @@
     "mcp": "MCP Services",
     "preferences": "Preferences",
     "providers": "Providers",
+    "prompts": "Prompts",
+    "sessions": "Sessions",
     "claudeCode": "Claude Code",
     "geminiCli": "Gemini CLI"
   },

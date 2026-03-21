@@ -19,7 +19,6 @@ import {
   KeyRound,
   Shield,
   Cpu,
-  Layers3,
 } from "lucide-react";
 import type { Provider, VisibleApps } from "@/types";
 import type { EnvConflict } from "@/types/env";
@@ -69,10 +68,12 @@ import EnvPanel from "@/components/openclaw/EnvPanel";
 import ToolsPanel from "@/components/openclaw/ToolsPanel";
 import AgentsDefaultsPanel from "@/components/openclaw/AgentsDefaultsPanel";
 import OpenClawHealthBanner from "@/components/openclaw/OpenClawHealthBanner";
+import DesignPreviewPage from "@/components/design/DesignPreviewPage";
 
 type View =
   | "providers"
   | "settings"
+  | "design"
   | "prompts"
   | "skills"
   | "skillsDiscovery"
@@ -160,7 +161,9 @@ function App() {
   const [isAddOpen, setIsAddOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(VIEW_STORAGE_KEY, currentView);
+    if (currentView !== "design") {
+      localStorage.setItem(VIEW_STORAGE_KEY, currentView);
+    }
   }, [currentView]);
 
   const { data: settingsData } = useSettingsQuery();
@@ -534,6 +537,19 @@ function App() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key.toLowerCase() === "d" &&
+        event.shiftKey &&
+        event.altKey &&
+        event.ctrlKey &&
+        event.metaKey
+      ) {
+        if (isTextEditableTarget(event.target)) return;
+        event.preventDefault();
+        setCurrentView("design");
+        return;
+      }
+
       if (event.key === "," && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         setCurrentView("settings");
@@ -763,8 +779,8 @@ function App() {
 
   const contextTabs: ContextTabItem[] = [
     { key: "providers", label: t("navigation.providers") },
-    { key: "prompts", label: "提示词", hidden: activeApp === "openclaw" },
-    { key: "sessions", label: "会话", hidden: !hasSessionSupport },
+    { key: "prompts", label: t("navigation.prompts"), hidden: activeApp === "openclaw" },
+    { key: "sessions", label: t("navigation.sessions"), hidden: !hasSessionSupport },
     { key: "workspace", label: t("workspace.title"), hidden: activeApp !== "openclaw" },
     { key: "openclawEnv", label: t("openclaw.env.title"), hidden: activeApp !== "openclaw" },
     { key: "openclawTools", label: t("openclaw.tools.title"), hidden: activeApp !== "openclaw" },
@@ -772,6 +788,7 @@ function App() {
   ];
 
   const isGlobalView =
+    currentView === "design" ||
     currentView === "skills" ||
     currentView === "skillsDiscovery" ||
     currentView === "mcp" ||
@@ -780,6 +797,8 @@ function App() {
   const renderContent = () => {
     const content = (() => {
       switch (currentView) {
+        case "design":
+          return <DesignPreviewPage />;
         case "settings":
           return (
             <SettingsPage
@@ -970,7 +989,7 @@ function App() {
                   ? "text-emerald-400 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300"
                   : "text-foreground/70 hover:text-foreground/85",
               )}
-              aria-label="CC Switch"
+              aria-label="睿狐 CC Switch"
               style={{ WebkitAppRegion: "no-drag" } as any}
             >
               <svg
@@ -1072,6 +1091,8 @@ function App() {
                         ? t("navigation.skills")
                         : currentView === "mcp"
                           ? t("navigation.mcp")
+                          : currentView === "design"
+                            ? "设计系统"
                           : currentView === "settings"
                             ? t("navigation.preferences")
                             : activeApp === "claude"
