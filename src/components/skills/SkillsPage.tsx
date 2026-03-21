@@ -9,10 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import { LumaSpin } from "@/components/ui/luma-spin";
 import { toast } from "sonner";
 import { SkillCard } from "./SkillCard";
-import { RepoManagerPanel } from "./RepoManagerPanel";
+import { RepoManager } from "./RepoManager";
 import {
   useDiscoverableSkills,
   useInstalledSkills,
@@ -236,10 +237,13 @@ export const SkillsPage = forwardRef<SkillsPageHandle, SkillsPageProps>(
       <div className="px-6 flex flex-col flex-1 min-h-0 overflow-hidden bg-background/50">
         {/* 技能网格（可滚动详情区域） */}
         <div className="flex-1 overflow-y-auto overflow-x-hidden animate-fade-in">
-          <div className="py-4">
+          <div className={loading ? "flex min-h-full items-center justify-center py-4" : "py-4"}>
             {loading ? (
-              <div className="flex items-center justify-center h-64">
-                <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center gap-4 text-center">
+                <LumaSpin />
+                <div className="text-sm text-muted-foreground">
+                  {t("common.loading")}
+                </div>
               </div>
             ) : skills.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center">
@@ -358,7 +362,7 @@ export const SkillsPage = forwardRef<SkillsPageHandle, SkillsPageProps>(
                     </p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 gap-4 min-[960px]:grid-cols-2 min-[1280px]:grid-cols-3 min-[1600px]:grid-cols-4 min-[1920px]:grid-cols-5">
                     {filteredSkills.map((skill) => (
                       <SkillCard
                         key={skill.key}
@@ -375,15 +379,14 @@ export const SkillsPage = forwardRef<SkillsPageHandle, SkillsPageProps>(
         </div>
 
         {/* 仓库管理面板 */}
-        {repoManagerOpen && (
-          <RepoManagerPanel
-            repos={repos}
-            skills={skills}
-            onAdd={handleAddRepo}
-            onRemove={handleRemoveRepo}
-            onClose={() => setRepoManagerOpen(false)}
-          />
-        )}
+        <RepoManager
+          open={repoManagerOpen}
+          onOpenChange={setRepoManagerOpen}
+          repos={repos}
+          skills={skills}
+          onAdd={handleAddRepo}
+          onRemove={handleRemoveRepo}
+        />
       </div>
     );
   },

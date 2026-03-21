@@ -119,10 +119,7 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn(
-      "flex flex-col gap-2 px-6 py-5 text-center sm:text-left",
-      className,
-    )}
+    className={cn("gap-2 px-6 py-5 text-center sm:text-left", className)}
     {...props}
   />
 );
@@ -145,7 +142,7 @@ const DialogFooter = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "flex flex-col-reverse gap-2 bg-background/95 p-6 backdrop-blur supports-[backdrop-filter]:bg-background/80 sm:flex-row sm:items-center sm:justify-end",
+      "grid gap-2 p-6 sm:grid-flow-col sm:justify-end sm:items-center",
       className,
     )}
     {...props}
@@ -160,7 +157,7 @@ const DialogCloseButton = React.forwardRef<
   <DialogPrimitive.Close
     ref={ref}
     className={cn(
-      "inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted/80 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20 disabled:pointer-events-none disabled:opacity-50",
+      "inline-grid h-9 w-9 place-items-center rounded-full bg-muted/80 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20 disabled:pointer-events-none disabled:opacity-50",
       className,
     )}
     {...props}

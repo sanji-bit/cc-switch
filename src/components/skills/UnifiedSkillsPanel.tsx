@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Sparkles, Trash2, ExternalLink } from "lucide-react";
+import { Sparkles, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SharedAppEntityCard } from "@/components/common/SharedAppEntityCard";
 import {
   type ImportSkillSelection,
   type SkillBackupEntry,
@@ -251,7 +252,8 @@ const UnifiedSkillsPanel = React.forwardRef<
   return (
     <div className="px-6 flex flex-col flex-1 min-h-0 overflow-hidden">
       <AppCountBar
-        totalLabel={t("skills.installed", { count: skills?.length || 0 })}
+        totalLabel="Skills"
+        totalCount={skills?.length || 0}
         counts={enabledCounts}
         appIds={MCP_SKILLS_APP_IDS}
       />
@@ -275,14 +277,13 @@ const UnifiedSkillsPanel = React.forwardRef<
           </div>
         ) : (
           <TooltipProvider delayDuration={300}>
-            <div className="grid grid-cols-1 gap-4 min-[1232px]:grid-cols-2 min-[1648px]:grid-cols-3 min-[2064px]:grid-cols-4 min-[2480px]:grid-cols-5">
-              {skills.map((skill, index) => (
+            <div className="grid grid-cols-1 gap-4 min-[960px]:grid-cols-2 min-[1280px]:grid-cols-3 min-[1600px]:grid-cols-4 min-[1920px]:grid-cols-5">
+              {skills.map((skill) => (
                 <InstalledSkillListItem
                   key={skill.id}
                   skill={skill}
                   onToggleApp={handleToggleApp}
                   onUninstall={() => handleUninstall(skill)}
-                  isLast={index === skills.length - 1}
                 />
               ))}
             </div>
@@ -331,14 +332,12 @@ interface InstalledSkillListItemProps {
   skill: InstalledSkill;
   onToggleApp: (id: string, app: AppId, enabled: boolean) => void;
   onUninstall: () => void;
-  isLast?: boolean;
 }
 
 const InstalledSkillListItem: React.FC<InstalledSkillListItemProps> = ({
   skill,
   onToggleApp,
   onUninstall,
-  isLast,
 }) => {
   const { t } = useTranslation();
 
@@ -359,74 +358,33 @@ const InstalledSkillListItem: React.FC<InstalledSkillListItemProps> = ({
   }, [skill.repoOwner, skill.repoName, t]);
 
   return (
-    <div
-      className="group flex h-full w-full flex-col overflow-hidden rounded-[24px] border border-border/80 bg-card text-card-foreground transition-shadow duration-200 hover:shadow-[0px_4px_16px_0px_rgba(0,0,0,0.06)]"
-      data-last={isLast ? "true" : "false"}
-    >
-      <div className="flex items-center gap-4 px-4 py-4">
-        <div className="flex h-[72px] w-[72px] flex-shrink-0 items-center justify-center rounded-[16px] bg-muted/35">
-          <Sparkles className="h-10 w-10 text-muted-foreground" />
-        </div>
-
-        <div className="flex min-w-0 flex-1 items-center">
-          <div className="flex w-full items-center justify-between gap-3">
-            <div className="flex min-w-0 flex-1 flex-col justify-center">
-              <div className="flex items-center gap-1.5">
-                <h3 className="truncate text-[18px] font-semibold leading-5 text-foreground">
-                  {skill.name}
-                </h3>
-                {skill.readmeUrl && (
-                  <button
-                    type="button"
-                    onClick={openDocs}
-                    className="flex-shrink-0 text-muted-foreground/60 transition-colors hover:text-foreground"
-                  >
-                    <ExternalLink size={12} />
-                  </button>
-                )}
-              </div>
-
-              {skill.description ? (
-                <p
-                  className="mt-1.5 line-clamp-1 text-[15px] leading-5 text-muted-foreground"
-                  title={skill.description}
-                >
-                  {skill.description}
-                </p>
-              ) : (
-                <p className="mt-1.5 line-clamp-1 text-[15px] leading-5 text-muted-foreground">
-                  {sourceLabel}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-auto px-4 pb-3">
-        <div className="flex items-center justify-between gap-3 border-t-[0.5px] border-border/50 pt-3">
-          <AppToggleGroup
-            apps={skill.apps}
-            onToggle={(app, enabled) => onToggleApp(skill.id, app, enabled)}
-            appIds={MCP_SKILLS_APP_IDS}
-            buttonClassName="h-8 w-8"
-          />
-
-          <div className="flex flex-shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
-              onClick={onUninstall}
-              title={t("skills.uninstall")}
-            >
-              <Trash2 size={14} />
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SharedAppEntityCard
+      title={skill.name}
+      description={skill.description || sourceLabel}
+      descriptionTitle={skill.description || sourceLabel}
+      onOpenExternal={skill.readmeUrl ? openDocs : undefined}
+      externalLabel={t("mcp.presets.docs")}
+      footerLeft={
+        <AppToggleGroup
+          apps={skill.apps}
+          onToggle={(app, enabled) => onToggleApp(skill.id, app, enabled)}
+          appIds={MCP_SKILLS_APP_IDS}
+          buttonClassName="h-6 w-6 !rounded-[8px]"
+        />
+      }
+      footerActions={
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 rounded-[8px] hover:text-red-500 hover:bg-red-100 dark:hover:text-red-400 dark:hover:bg-red-500/10"
+          onClick={onUninstall}
+          title={t("skills.uninstall")}
+        >
+          <Trash size={14} />
+        </Button>
+      }
+    />
   );
 };
 

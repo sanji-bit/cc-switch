@@ -32,6 +32,46 @@ interface ConfigLoadErrorPayload {
   error?: string;
 }
 
+const shouldEnableAgentation =
+  import.meta.env.DEV && import.meta.env.VITE_ENABLE_AGENTATION === "true";
+
+if (import.meta.env.DEV) {
+  console.info("[Agentation] enabled:", shouldEnableAgentation);
+}
+
+function DevAgentation() {
+  const [Component, setComponent] =
+    React.useState<React.ComponentType<{ endpoint?: string }> | null>(null);
+
+  React.useEffect(() => {
+    if (!shouldEnableAgentation) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void import("agentation")
+      .then((mod) => {
+        if (!cancelled) {
+          setComponent(() => mod.Agentation);
+        }
+      })
+      .catch((error) => {
+        console.error("加载 Agentation 失败", error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!shouldEnableAgentation || !Component) {
+    return null;
+  }
+
+  return <Component endpoint="http://localhost:4747" />;
+}
+
 /**
  * 处理配置加载失败：显示错误消息并强制退出应用
  * 不给用户"取消"选项，因为配置损坏时应用无法正常运行
@@ -93,6 +133,7 @@ async function bootstrap() {
           <UpdateProvider>
             <App />
             <Toaster />
+            <DevAgentation />
           </UpdateProvider>
         </ThemeProvider>
       </QueryClientProvider>
