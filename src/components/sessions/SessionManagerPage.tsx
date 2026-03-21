@@ -217,7 +217,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
         <div className="flex-1 overflow-hidden flex flex-col gap-4">
           {/* 主内容区域 - 左右分栏 */}
           <Card className="flex-1 overflow-hidden">
-            <div className="grid h-full min-h-0 md:grid-cols-[minmax(280px,320px)_minmax(0,1fr)]">
+            <div className="grid h-full min-h-0 md:grid-cols-[minmax(280px,360px)_minmax(0,1fr)]">
               {/* 左侧会话列表 */}
               <div className="flex min-h-0 flex-col border-r border-border/60">
                 <CardHeader className="px-4 py-4">
