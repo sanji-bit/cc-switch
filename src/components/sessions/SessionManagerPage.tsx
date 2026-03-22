@@ -251,7 +251,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                           setProviderFilter(value as ProviderFilter)
                         }
                       >
-                        <SelectTrigger className="h-8 w-auto min-w-[132px] shrink-0 border-0 bg-transparent px-2 text-sm shadow-none gap-1.5 focus:border-0">
+                        <SelectTrigger className="h-8 w-fit min-w-0 shrink-0 gap-1.5 border-0 bg-transparent px-2 text-sm shadow-none focus:border-0">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
