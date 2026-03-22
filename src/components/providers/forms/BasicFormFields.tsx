@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   FormControl,
@@ -9,14 +9,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
 import { ProviderIcon } from "@/components/ProviderIcon";
 import { IconPicker } from "@/components/IconPicker";
 import { getIconMetadata } from "@/icons/extracted/metadata";
@@ -35,10 +27,43 @@ export function BasicFormFields({
 }: BasicFormFieldsProps) {
   const { t } = useTranslation();
   const [iconDialogOpen, setIconDialogOpen] = useState(false);
+  const iconPickerRef = useRef<HTMLDivElement | null>(null);
+  const iconTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (!iconDialogOpen) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node;
+      if (
+        iconPickerRef.current?.contains(target) ||
+        iconTriggerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setIconDialogOpen(false);
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIconDialogOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [iconDialogOpen]);
 
   const currentIcon = form.watch("icon");
   const currentIconColor = form.watch("iconColor");
-  const providerName = form.watch("name") || "Provider";
+  const providerName = form.watch("name") || "A";
   const effectiveIconColor =
     currentIconColor ||
     (currentIcon ? getIconMetadata(currentIcon)?.defaultColor : undefined);
@@ -47,75 +72,53 @@ export function BasicFormFields({
     const meta = getIconMetadata(icon);
     form.setValue("icon", icon);
     form.setValue("iconColor", meta?.defaultColor ?? "");
+    setIconDialogOpen(false);
   };
 
   return (
     <>
       {/* 图标选择区域 - 顶部居中，可选 */}
-      <div className="flex justify-center mb-6">
-        <Dialog open={iconDialogOpen} onOpenChange={setIconDialogOpen}>
-          <DialogTrigger asChild>
-            <button
-              type="button"
-              className="w-20 h-20 p-3 rounded-xl border-2 border-muted hover:border-primary transition-colors cursor-pointer bg-muted/30 hover:bg-muted/50 flex items-center justify-center"
-              title={
-                currentIcon
-                  ? t("providerIcon.clickToChange", {
-                      defaultValue: "点击更换图标",
-                    })
-                  : t("providerIcon.clickToSelect", {
-                      defaultValue: "点击选择图标",
-                    })
-              }
-            >
-              <ProviderIcon
-                icon={currentIcon}
-                name={providerName}
-                color={effectiveIconColor}
-                size={48}
-              />
-            </button>
-          </DialogTrigger>
-          <DialogContent
-            variant="fullscreen"
-            zIndex="top"
-            overlayClassName="bg-[hsl(var(--background))] backdrop-blur-0"
-            className="p-0 sm:rounded-none"
+      <div className="relative mb-6 flex justify-center">
+        <button
+          ref={iconTriggerRef}
+          type="button"
+          onClick={() => setIconDialogOpen((open) => !open)}
+          className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-xl border-2 border-muted bg-muted/30 p-3 transition-colors hover:border-primary hover:bg-muted/50"
+          title={
+            currentIcon
+              ? t("providerIcon.clickToChange", {
+                  defaultValue: "点击更换图标",
+                })
+              : t("providerIcon.clickToSelect", {
+                  defaultValue: "点击选择图标",
+                })
+          }
+        >
+          <ProviderIcon
+            icon={currentIcon}
+            name={providerName}
+            color={effectiveIconColor}
+            size={48}
+          />
+        </button>
+
+        {iconDialogOpen && (
+          <div
+            ref={iconPickerRef}
+            className="absolute left-1/2 top-full z-20 mt-3 w-fit -translate-x-1/2 rounded-[24px] border border-border/80 bg-background p-3 shadow-2xl shadow-black/12"
           >
-            <div className="flex h-full flex-col">
-              <div className="flex-shrink-0 py-4 border-b border-border-default bg-muted/40">
-                <div className="px-6 flex items-center gap-4">
-                  <DialogClose asChild>
-                    <Button type="button" variant="outline" size="icon">
-                      <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                  </DialogClose>
-                  <p className="text-lg font-semibold leading-tight">
-                    {t("providerIcon.selectIcon", {
-                      defaultValue: "选择图标",
-                    })}
-                  </p>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto">
-                <div className="space-y-2 px-6 py-6 w-full">
-                  <IconPicker
-                    value={currentIcon}
-                    onValueChange={handleIconSelect}
-                    color={effectiveIconColor}
-                  />
-                  <div className="flex justify-end gap-2">
-                    <DialogClose asChild>
-                      <Button type="button" variant="outline">
-                        {t("common.done", { defaultValue: "完成" })}
-                      </Button>
-                    </DialogClose>
-                  </div>
-                </div>
-              </div>
+            <div className="rounded-[18px] bg-muted/20 p-2">
+              <IconPicker
+                value={currentIcon}
+                onValueChange={handleIconSelect}
+                color={effectiveIconColor}
+                variant="compact"
+                showSearch
+                previewName={providerName}
+              />
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        )}
       </div>
 
       {/* Slot for additional fields between icon and name */}

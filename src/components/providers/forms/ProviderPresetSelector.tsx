@@ -99,7 +99,7 @@ export function ProviderPresetSelector({
     preset: ProviderPreset | CodexProviderPreset | GeminiProviderPreset,
   ) => {
     const baseClass =
-      "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors";
+      "inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-sm font-medium transition-colors";
 
     if (isSelected) {
       if (preset.theme?.backgroundColor) {
