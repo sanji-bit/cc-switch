@@ -1,7 +1,6 @@
 import { List, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
@@ -9,7 +8,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface TocItem {
@@ -31,7 +29,7 @@ export function SessionTocSidebar({
   if (items.length <= 2) return null;
 
   return (
-    <div className="w-64 border-l shrink-0 hidden xl:block">
+    <div className="hidden w-64 shrink-0 border-l min-[1500px]:block">
       <div className="p-3 border-b">
         <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
           <List className="size-3.5" />
@@ -81,14 +79,6 @@ export function SessionTocDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger asChild>
-        <Button
-          size="icon"
-          className="fixed bottom-20 right-4 xl:hidden size-10 rounded-full shadow-lg z-30"
-        >
-          <List className="size-4" />
-        </Button>
-      </DialogTrigger>
       <DialogContent
         className="max-w-md max-h-[70vh] flex flex-col p-0 gap-0"
         zIndex="alert"

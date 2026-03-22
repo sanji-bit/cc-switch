@@ -7,10 +7,11 @@ import {
   RefreshCw,
   Search,
   Play,
-  Trash2,
+  Trash,
   MessageSquare,
   Clock,
   Folder,
+  List,
   X,
 } from "lucide-react";
 import {
@@ -416,29 +417,33 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                               </div>
                             </div>
 
-                            <div className="flex shrink-0 items-center gap-2">
+                            <div className="flex shrink-0 items-center gap-1">
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="gap-1.5"
+                                    size="icon"
+                                    variant="ghost"
+                                    className="size-8"
+                                    aria-label={
+                                      deleteSessionMutation.isPending
+                                        ? t("sessionManager.deleting", {
+                                            defaultValue: "删除中...",
+                                          })
+                                        : t("common.delete", {
+                                            defaultValue: "删除",
+                                          })
+                                    }
                                     onClick={() => setDeleteTarget(selectedSession)}
                                     disabled={
                                       !selectedSession.sourcePath ||
                                       deleteSessionMutation.isPending
                                     }
                                   >
-                                    <Trash2 className="size-3.5" />
-                                    <span>
-                                      {deleteSessionMutation.isPending
-                                        ? t("sessionManager.deleting", {
-                                            defaultValue: "删除中...",
-                                          })
-                                        : t("common.delete", {
-                                            defaultValue: "删除",
-                                          })}
-                                    </span>
+                                    {deleteSessionMutation.isPending ? (
+                                      <RefreshCw className="size-3.5 animate-spin" />
+                                    ) : (
+                                      <Trash className="size-3.5" />
+                                    )}
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
@@ -451,13 +456,41 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                                       })}
                                 </TooltipContent>
                               </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="size-8"
+                                    aria-label={t("sessionManager.tocTitle", {
+                                      defaultValue: "对话目录",
+                                    })}
+                                    onClick={() => setTocDialogOpen(true)}
+                                    disabled={userMessagesToc.length <= 2}
+                                  >
+                                    <List className="size-3.5" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {userMessagesToc.length > 2
+                                    ? t("sessionManager.tocTitle", {
+                                        defaultValue: "对话目录",
+                                      })
+                                    : t("sessionManager.empty", {
+                                        defaultValue: "暂无内容",
+                                      })}
+                                </TooltipContent>
+                              </Tooltip>
                               {selectedSession.resumeCommand && (
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="gap-1.5"
+                                      size="icon"
+                                      variant="ghost"
+                                      className="size-8"
+                                      aria-label={t("sessionManager.copyCommand", {
+                                        defaultValue: "复制命令",
+                                      })}
                                       onClick={() =>
                                         void handleCopy(
                                           selectedSession.resumeCommand!,
@@ -466,11 +499,6 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                                       }
                                     >
                                       <Copy className="size-3.5" />
-                                      <span>
-                                        {t("sessionManager.copyCommand", {
-                                          defaultValue: "复制命令",
-                                        })}
-                                      </span>
                                     </Button>
                                   </TooltipTrigger>
                                   <TooltipContent>
@@ -485,7 +513,7 @@ export function SessionManagerPage({ appId }: { appId: string }) {
                                   <TooltipTrigger asChild>
                                     <Button
                                       size="sm"
-                                      className="gap-1.5"
+                                      className="ml-2 gap-1.5"
                                       onClick={() => void handleResume()}
                                       disabled={!selectedSession.resumeCommand}
                                     >
